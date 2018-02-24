@@ -1,0 +1,12 @@
+artifacts:
+  - path: '**\*.nupkg'
+
+configuration:
+  - Release
+
+build_script:
+  - cmd: >-
+      dotnet build TRex.sln /p:VersionPrefix=%APPVEYOR_BUILD_VERSION%
+
+test_script:
+  - cmd: dotnet test .\TRexLib.Tests\TRexLib.Tests.csproj
