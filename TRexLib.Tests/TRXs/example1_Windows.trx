@@ -1,0 +1,32 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<TestRun id="ff48bb17-9b34-4288-8e6a-7f35cc2ec60a" name="josequ@JOSEQU7 2016-12-21 11:15:51" runUser="REDMOND\josequ" xmlns="http://microsoft.com/schemas/VisualStudio/TeamTest/2010">
+  <Times creation="2016-12-21T11:15:51.8238578-08:00" queuing="2016-12-21T11:15:51.8243570-08:00" start="2016-12-21T11:15:51.8243570-08:00" finish="2016-12-21T11:15:51.8328572-08:00" />
+  <TestSettings name="default" id="01dfffb2-f695-4499-b067-b7dab1ffba8d">
+    <Deployment runDeploymentRoot="josequ_JOSEQU7 2016-12-21 11_15_51" />
+  </TestSettings>
+  <Results>
+    <UnitTestResult executionId="986bc682-17d7-4d45-9011-a76cb43316a5" testId="cc398280-8a1b-4689-a13e-594fe9c85420" testName="Microsoft.DotNet.Cli.Sln.Internal.Tests.GivenAnSlnFile.WhenGivenAValidPathItReadsAnSlnFile" computerName="JOSEQU7" duration="00:00:00.1380000" startTime="2016-12-21T11:15:51.8308573-08:00" endTime="2016-12-21T11:15:51.8308573-08:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="986bc682-17d7-4d45-9011-a76cb43316a5" />
+    <UnitTestResult executionId="e7843f7e-e839-4e34-b483-9930f2b550e8" testId="4684c3b7-c46f-424d-ad13-1a38836fd7df" testName="Microsoft.DotNet.Cli.Sln.Internal.Tests.GivenAnSlnFile.WhenGivenAValidPathItReadsModifiesThenWritesAnSln" computerName="JOSEQU7" duration="00:00:00.0450000" startTime="2016-12-21T11:15:51.8313580-08:00" endTime="2016-12-21T11:15:51.8313580-08:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Failed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="e7843f7e-e839-4e34-b483-9930f2b550e8" />
+  </Results>
+  <TestDefinitions>
+    <UnitTest name="Microsoft.DotNet.Cli.Sln.Internal.Tests.GivenAnSlnFile.WhenGivenAValidPathItReadsAnSlnFile" storage="c:\dev\github\cli\test\microsoft.dotnet.cli.sln.internal.tests\bin\debug\netcoreapp1.0\microsoft.dotnet.cli.sln.internal.tests.dll" id="cc398280-8a1b-4689-a13e-594fe9c85420">
+      <Execution id="986bc682-17d7-4d45-9011-a76cb43316a5" />
+      <TestMethod codeBase="C:\dev\github\cli\test\Microsoft.DotNet.Cli.Sln.Internal.Tests\bin\Debug\netcoreapp1.0\Microsoft.DotNet.Cli.Sln.Internal.Tests.dll" executorUriOfAdapter="executor://xunit/VsTestRunner2" className="Microsoft.DotNet.Cli.Sln.Internal.Tests.GivenAnSlnFile" name="Microsoft.DotNet.Cli.Sln.Internal.Tests.GivenAnSlnFile.WhenGivenAValidPathItReadsAnSlnFile" />
+    </UnitTest>
+    <UnitTest name="Microsoft.DotNet.Cli.Sln.Internal.Tests.GivenAnSlnFile.WhenGivenAValidPathItReadsModifiesThenWritesAnSln" storage="c:\dev\github\cli\test\microsoft.dotnet.cli.sln.internal.tests\bin\debug\netcoreapp1.0\microsoft.dotnet.cli.sln.internal.tests.dll" id="4684c3b7-c46f-424d-ad13-1a38836fd7df">
+      <Execution id="e7843f7e-e839-4e34-b483-9930f2b550e8" />
+      <TestMethod codeBase="C:\dev\github\cli\test\Microsoft.DotNet.Cli.Sln.Internal.Tests\bin\Debug\netcoreapp1.0\Microsoft.DotNet.Cli.Sln.Internal.Tests.dll" executorUriOfAdapter="executor://xunit/VsTestRunner2" className="Microsoft.DotNet.Cli.Sln.Internal.Tests.GivenAnSlnFile" name="Microsoft.DotNet.Cli.Sln.Internal.Tests.GivenAnSlnFile.WhenGivenAValidPathItReadsModifiesThenWritesAnSln" />
+    </UnitTest>
+  </TestDefinitions>
+  <TestEntries>
+    <TestEntry testId="cc398280-8a1b-4689-a13e-594fe9c85420" executionId="986bc682-17d7-4d45-9011-a76cb43316a5" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="4684c3b7-c46f-424d-ad13-1a38836fd7df" executionId="e7843f7e-e839-4e34-b483-9930f2b550e8" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+  </TestEntries>
+  <TestLists>
+    <TestList name="Results Not in a List" id="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestList name="All Loaded Results" id="19431567-8539-422a-85d7-44ee4e166bda" />
+  </TestLists>
+  <ResultSummary outcome="Completed">
+    <Counters total="2" executed="2" passed="2" failed="0" error="0" timeout="0" aborted="0" inconclusive="0" passedButRunAborted="0" notRunnable="0" notExecuted="0" disconnected="0" warning="0" completed="0" inProgress="0" pending="0" />
+  </ResultSummary>
+</TestRun>
