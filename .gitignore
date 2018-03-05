@@ -24,8 +24,11 @@ _NCrunch_*/
 Artifacts
 *.psess
 *.xml
+!/build/*.xml
 *.nupkg
 /.stignore
 /.stfolder
+.dotnet
+.vscode
 
 \.vs/

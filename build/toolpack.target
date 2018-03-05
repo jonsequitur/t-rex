@@ -1,0 +1,35 @@
+<Project>
+  <PropertyGroup>
+    <TargetsForTfmSpecificContentInPackage>$(TargetsForTfmSpecificBuildOutput);AddPackageFiles</TargetsForTfmSpecificContentInPackage>
+    <PackageType>DotnetTool</PackageType>
+    <IncludeBuildOutput>false</IncludeBuildOutput>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Update="@(PackageReference)">
+      <PrivateAssets>All</PrivateAssets>
+      <Publish Condition=" '%(PackageReference.Publish)' != 'false' ">true</Publish>
+    </PackageReference>
+
+    <ProjectReference Update="@(ProjectReference)">
+      <PrivateAssets>All</PrivateAssets>
+      <Publish Condition=" '%(ProjectReference.Publish)' != 'false' ">true</Publish>
+    </ProjectReference>
+
+    <PackageReference Include="Microsoft.NETCore.Platforms" Version="2.1.0-preview1-26216-02" />
+  </ItemGroup>
+
+  <Target Name="AddPackageFiles" DependsOnTargets="Publish">
+    <ItemGroup>
+      <TfmSpecificPackageFile Include="$(PublishDir)/**/*.*">
+        <PackagePath>tools/$(targetframework)/any</PackagePath>
+      </TfmSpecificPackageFile>
+    </ItemGroup>
+  </Target>
+
+  <ItemGroup>
+    <TfmSpecificPackageFile Include="$(MSBuildThisFileDirectory)/DotnetToolSettings.xml">
+      <PackagePath>tools/$(targetframework)/any</PackagePath>
+    </TfmSpecificPackageFile>
+  </ItemGroup>
+</Project>
