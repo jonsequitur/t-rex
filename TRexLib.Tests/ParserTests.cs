@@ -4,7 +4,6 @@ using FluentAssertions;
 using System.Linq;
 using Xunit;
 using Xunit.Abstractions;
-using System.Runtime.InteropServices;
 
 namespace TRexLib.Tests
 {
@@ -102,11 +101,6 @@ namespace TRexLib.Tests
         [Fact]
         public void The_path_to_a_Windows_test_project_is_parsed()
         {
-            if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-            {
-                return;
-            }
-
             var results =
                 new FileInfo(Path.Combine("TRXs", "example1_Windows.trx"))
                     .Parse();
@@ -121,11 +115,6 @@ namespace TRexLib.Tests
         [Fact]
         public void The_path_to_a_Windows_test_dll_is_parsed()
         {
-            if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-            {
-                return;
-            }
-
             var results =
                 new FileInfo(Path.Combine("TRXs", "example1_Windows.trx"))
                     .Parse();
