@@ -1,10 +1,13 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk" ToolsVersion="15.0">
   <PropertyGroup>
     <OutputType>exe</OutputType>
-    <TargetFramework>netcoreapp2.0</TargetFramework>
+    <TargetFramework>netcoreapp2.1</TargetFramework>
     <RootNamespace>TRex.CommandLine</RootNamespace>
+    <Version>1.0.0-preview1-$(AppendVersionSuffix)</Version>
+    <IncludeBuildOutput>false</IncludeBuildOutput>
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="..\TRexLib\TRexLib.csproj" />
   </ItemGroup>
+  <Import Condition="'$(PackTool)' == 'true' " Project="..\build\toolpack.target" />
 </Project>

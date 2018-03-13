@@ -1,12 +1,13 @@
 artifacts:
-  - path: '**\*.nupkg'
+  - path: '**\t-rex*.nupkg'
 
 configuration:
   - Release
 
 build_script:
-  - cmd: >-
-      dotnet build TRex.sln /p:VersionPrefix=%APPVEYOR_BUILD_VERSION%
+  - ps: >-
+      ./build.ps1
 
 test_script:
-  - cmd: dotnet test .\TRexLib.Tests\TRexLib.Tests.csproj
+  - ps: >-
+      ./build.ps1 -test
