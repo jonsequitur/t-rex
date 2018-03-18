@@ -16,7 +16,7 @@
       <Publish Condition=" '%(ProjectReference.Publish)' != 'false' ">true</Publish>
     </ProjectReference>
 
-    <PackageReference Include="Microsoft.NETCore.Platforms" Version="2.1.0-preview1-26216-02" />
+    <PackageReference Include="Microsoft.NETCore.Platforms" Version="2.1.0-preview3-26318-03" />
   </ItemGroup>
 
   <Target Name="AddPackageFiles" DependsOnTargets="Publish">

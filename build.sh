@@ -37,4 +37,4 @@ if [ ! -z "$APPVEYOR_BUILD_VERSION" ]; then
 	VersionSuffix="$APPVEYOR_BUILD_VERSION"
 fi
 
-dotnet pack t-rex/t-rex.csproj /p:AppendVersionSuffix=$VersionSuffix /p:packTool=true
+dotnet pack t-rex/t-rex.csproj -c:release /p:AppendVersionSuffix=$VersionSuffix /p:packTool=true
