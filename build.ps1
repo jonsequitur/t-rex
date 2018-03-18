@@ -29,4 +29,4 @@ $VersionSuffix = "devbuild"
 if ($env:APPVEYOR_BUILD_VERSION -ne $Null -and $env:APPVEYOR_BUILD_VERSION -ne '') {
     $VersionSuffix=$env:APPVEYOR_BUILD_VERSION
 }
-dotnet pack t-rex/t-rex.csproj /p:AppendVersionSuffix=$VersionSuffix /p:packTool=true
+dotnet pack t-rex/t-rex.csproj -c:release /p:AppendVersionSuffix=$VersionSuffix /p:packTool=true
