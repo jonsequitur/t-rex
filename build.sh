@@ -11,7 +11,7 @@ done
 
 export DOTNET_SKIP_FIRST_TIME_EXPERIENCE=1
 export DOTNET_MULTILEVEL_LOOKUP=0
-DotNetCliVersion="2.1.300-preview1-008174"
+DotNetCliVersion="2.1.300"
 DotNetRoot=".dotnet"
 DotNetInstallScript="$DotNetRoot/dotnet-install.sh"
 

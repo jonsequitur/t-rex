@@ -4,7 +4,7 @@ Param(
 
 $env:DOTNET_SKIP_FIRST_TIME_EXPERIENCE = 1
 $env:DOTNET_MULTILEVEL_LOOKUP = 0
-$DotNetCliVersion = "2.1.300-preview1-008174"
+$DotNetCliVersion = "2.1.300"
 $DotNetRoot = ".dotnet"
 $DotNetInstallScript = Join-Path $DotNetRoot "dotnet-install.ps1"
 
