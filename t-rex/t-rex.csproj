@@ -3,7 +3,7 @@
     <OutputType>exe</OutputType>
     <TargetFramework>netcoreapp2.1</TargetFramework>
     <RootNamespace>TRex.CommandLine</RootNamespace>
-    <Version>$(AppendVersionSuffix)-beta</Version>
+    <Version>$(AppendVersionSuffix)</Version>
     <ToolCommandName>t-rex</ToolCommandName>
     <PackAsTool>true</PackAsTool>
     <LangVersion>latest</LangVersion>
