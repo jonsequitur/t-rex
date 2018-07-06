@@ -6,7 +6,7 @@ namespace TRexLib
 {
     public class TestResultSet : IEnumerable<TestResult>
     {
-        private IOrderedEnumerable<TestResult> all;
+        private readonly IOrderedEnumerable<TestResult> all;
 
         public TestResultSet(IEnumerable<TestResult> testResults)
         {

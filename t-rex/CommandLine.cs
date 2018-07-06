@@ -1,13 +1,19 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.CommandLine;
+using System.CommandLine.Builder;
+using System.CommandLine.Invocation;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 using TRexLib;
 
 namespace TRex.CommandLine
 {
     public class CommandLine
     {
+        public static Parser Parser { get; }
+
         private readonly string[] args;
 
         public CommandLine(string args) :
@@ -22,30 +28,81 @@ namespace TRex.CommandLine
             this.args = args;
         }
 
-        public TestResultSet Invoke()
+        static CommandLine()
         {
-            var files = new List<FileInfo>();
+            var builder = new CommandLineBuilder()
+                          .UseParseDirective()
+                          .UseHelp()
+                          .UseSuggestDirective()
+                          .UseParseErrorReporting()
+                          .UseExceptionHandler()
+                          .AddOption("--path",
+                                     "Directories to search for .trx files. Only the most recent .trx file in a given directory is used.",
+                                     a => a.WithDefaultValue(Directory.GetCurrentDirectory)
+                                           .ParseArgumentsAs<DirectoryInfo[]>())
+                          .AddOption("--file",
+                                     ".trx files to parse",
+                                     a => a
+                                          .ExistingFilesOnly()
+                                          .ParseArgumentsAs<FileInfo[]>())
+                          .AddOption(new[] { "-f", "--format" },
+                                     "The format for the output.",
+                                     args => args
+                                             .WithDefaultValue(() => OutputFormat.Summary)
+                                             .ParseArgumentsAs<OutputFormat>());
+
+            builder.OnExecute(typeof(CommandLine).GetMethod(nameof(InvokeAsync)));
+
+            Parser = builder.Build();
+        }
+
+        public static async Task InvokeAsync(
+            OutputFormat format,
+            FileInfo[] file,
+            DirectoryInfo[] path,
+            IConsole console)
+        {
+            var allFiles = new List<FileInfo>();
+
+            if (file != null && file.Any())
+            {
+                foreach (var fileInfo in file.Where(f => f.Exists))
+                {
+                    allFiles.Add(fileInfo);
+                }
+            }
+            else
+            {
+                foreach (var directoryInfo in path)
+                {
+                    if (directoryInfo.Exists)
+                    {
+                        allFiles.AddRange(SearchDirectory(directoryInfo.FullName));
+                    }
+                }
+            }
+
+            var resultSet = Create(allFiles);
+
+            IConsoleWriter writer = null;
+
+            switch (format)
+            {
+                case OutputFormat.Summary:
+                    writer = new SummaryWriter();
+                    break;
+                case OutputFormat.Json:
+                    writer = new JsonWriter();
+                    break;
+            }
+
+            await writer.WriteAsync(console, resultSet);
+        }
+
+        private static TestResultSet Create(
+            IEnumerable<FileInfo> files)
+        {
             var testResults = new List<TestResult>();
-
-            if (args.Length == 0)
-            {
-                // search for files
-                files.AddRange(SearchDirectory(Directory.GetCurrentDirectory()));
-            }
-            else if (args.Length == 1)
-            {
-                var path = args.Single();
-
-                if (File.Exists(path))
-                {
-                    files.Add(new FileInfo(path));
-                }
-
-                if (Directory.Exists(path))
-                {
-                    files.AddRange(SearchDirectory(path));
-                }
-            }
 
             foreach (var file in files)
             {
@@ -55,11 +112,11 @@ namespace TRex.CommandLine
             return new TestResultSet(testResults);
         }
 
-        private IEnumerable<FileInfo> SearchDirectory(string path)
+        private static IEnumerable<FileInfo> SearchDirectory(string path)
         {
             var allFiles = new DirectoryInfo(path)
-                .GetFiles("*.trx", SearchOption.AllDirectories)
-                .GroupBy(f => f.Directory.FullName);
+                           .GetFiles("*.trx", SearchOption.AllDirectories)
+                           .GroupBy(f => f.Directory.FullName);
 
             foreach (var folder in allFiles)
             {

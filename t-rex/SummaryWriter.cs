@@ -1,54 +1,45 @@
 using System;
-using System.IO;
+using System.CommandLine;
 using System.Linq;
+using System.Threading.Tasks;
+using TRexLib;
 
-namespace TRexLib
+namespace TRex.CommandLine
 {
-    public class SummaryWriter
+    public class SummaryWriter : IConsoleWriter
     {
-        private readonly TextWriter output;
-
-        public SummaryWriter(TextWriter output)
-        {
-            if (output == null) 
-            {
-                throw new ArgumentNullException(nameof(output));
-            }
-            this.output = output;
-        }
-
-        public void Write(TestResultSet testResults)
+        public async Task WriteAsync(IConsole console, TestResultSet testResults)
         {
             using (ConsoleColor.Green())
             {
-                output.WriteResults("PASSED", testResults.Passed);
+                await console.WriteResults("PASSED", testResults.Passed);
             }
 
             using (ConsoleColor.Yellow())
             {
-                output.WriteResults("NOT RUN", testResults.NotExecuted);
+                await console.WriteResults("NOT RUN", testResults.NotExecuted);
             }
 
             using (ConsoleColor.Red())
             {
-                output.WriteResults("FAILED", testResults.Failed);
+                await console.WriteResults("FAILED", testResults.Failed);
             }
 
-            output.WriteLine($"\nSUMMARY:");
+            console.Out.WriteLine($"\nSUMMARY:");
 
             using (ConsoleColor.Green())
             {
-                output.Write($"Passed: {testResults.Passed.Count()}, ");
+                await console.Out.WriteAsync($"Passed: {testResults.Passed.Count()}, ");
             }
 
             using (ConsoleColor.Red())
             {
-                output.Write($"Failed: {testResults.Failed.Count()}, ");
+                await console.Out.WriteAsync($"Failed: {testResults.Failed.Count()}, ");
             }
 
             using (ConsoleColor.Yellow())
             {
-                output.WriteLine($"Not run: {testResults.NotExecuted.Count()}");
+                await console.Out.WriteLineAsync($"Not run: {testResults.NotExecuted.Count()}");
             }
         }
 

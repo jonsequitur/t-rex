@@ -1,15 +1,14 @@
 ﻿using System;
-using TRexLib;
+using System.CommandLine.Invocation;
+using System.Threading.Tasks;
 
 namespace TRex.CommandLine
 {
     public class Program
     {
-        static void Main(string[] args)
+        static async Task Main(string[] args)
         {
-            var testResults = new CommandLine(args).Invoke();
-
-            new SummaryWriter(Console.Out).Write(testResults);
+            await CommandLine.Parser.InvokeAsync(args);
         }
     }
 }
