@@ -6,8 +6,15 @@
     <Version>1.0.0-preview1-$(AppendVersionSuffix)</Version>
     <ToolCommandName>t-rex</ToolCommandName>
     <PackAsTool>true</PackAsTool>
+    <LangVersion>latest</LangVersion>
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="..\TRexLib\TRexLib.csproj" />
   </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="newtonsoft.json" Version="11.0.2" />
+    <PackageReference Include="System.CommandLine.Experimental" Version="0.1.0-alpha-63105-01" />
+  </ItemGroup>
+  
 </Project>
