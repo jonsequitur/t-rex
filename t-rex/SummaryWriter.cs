@@ -10,6 +10,16 @@ namespace TRex.CommandLine
     {
         public async Task WriteAsync(IConsole console, TestResultSet testResults)
         {
+            if (console == null)
+            {
+                throw new ArgumentNullException(nameof(console));
+            }
+
+            if (testResults == null)
+            {
+                throw new ArgumentNullException(nameof(testResults));
+            }
+
             using (ConsoleColor.Green())
             {
                 await console.WriteResults("PASSED", testResults.Passed);
