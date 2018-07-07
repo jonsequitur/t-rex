@@ -60,7 +60,7 @@ namespace TRex.CommandLine
             OutputFormat format,
             FileInfo[] file,
             DirectoryInfo[] path,
-            IConsole console)
+            IConsole console = null)
         {
             var allFiles = new List<FileInfo>();
 
