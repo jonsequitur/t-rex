@@ -6,6 +6,10 @@ namespace TRex.CommandLine
 {
     internal static class ConsoleExtensions
     {
+
+
+        public static ConsoleColor SetColor(this IConsole console, System.ConsoleColor color) => new ConsoleColor(console, color);
+
         public static ConsoleColor SetColorForOutcome(this IConsole console, TestOutcome outcome)
         {
             switch (outcome)

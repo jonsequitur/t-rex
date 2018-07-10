@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Net.Sockets;
 using System.Xml.Linq;
 using Microsoft.Recipes;
 using static System.Environment;
@@ -40,6 +41,10 @@ namespace TRexLib
                                {
                                    var codebase = CodebaseFor(testDefinitions, e);
 
+                                   var output = string.Join("\n", e.Descendants()
+                                                                   .Where(ee => ee.Name.LocalName == "Message" || ee.Name.LocalName == "StdOut")
+                                                                   .Select(ee => ee.Value));
+
                                    return new TestResult(
                                        fullyQualifiedTestName: e.Attribute("testName")?.Value,
                                        outcome: e.Attribute("outcome")
@@ -63,11 +68,15 @@ namespace TRexLib
                                                  ?.Value
                                                  .IfNotNull()
                                                  .Then(DateTimeOffset.Parse)
-                                                 .ElseDefault(), testProjectDirectory: codebase?.Directory
-                                                                                               .Parent
-                                                                                               .Parent
-                                                                                               .Parent
-                                                                                               .EnsureTrailingSlash(), testOutputFile: fileInfo, codebase: codebase);
+                                                 .ElseDefault(),
+                                       testProjectDirectory: codebase?.Directory
+                                                                     .Parent
+                                                                     .Parent
+                                                                     .Parent
+                                                                     .EnsureTrailingSlash(),
+                                       testOutputFile: fileInfo,
+                                       codebase: codebase,
+                                       output: output);
                                })
                                .ToArray();
                 }
