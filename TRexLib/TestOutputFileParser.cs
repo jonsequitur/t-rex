@@ -40,39 +40,34 @@ namespace TRexLib
                                {
                                    var codebase = CodebaseFor(testDefinitions, e);
 
-                                   return new TestResult
-                                   {
-                                       TestName = e.Attribute("testName")?.Value,
-                                       Duration = e.Attribute("duration")
-                                                   ?.Value
-                                                   .IfNotNull()
-                                                   .Then(TimeSpan.Parse)
-                                                   .ElseDefault(),
-                                       StartTime = e.Attribute("startTime")
-                                                    ?.Value
-                                                    .IfNotNull()
-                                                    .Then(DateTimeOffset.Parse)
-                                                    .ElseDefault(),
-                                       EndTime = e.Attribute("endTime")
+                                   return new TestResult(
+                                       fullyQualifiedTestName: e.Attribute("testName")?.Value,
+                                       outcome: e.Attribute("outcome")
+                                                 .IfNotNull()
+                                                 .Then(a => a.Value
+                                                             .IfNotNull()
+                                                             .Then(v => (TestOutcome) Enum.Parse(
+                                                                       typeof(TestOutcome), v)))
+                                                 .Else(() => TestOutcome.NotExecuted),
+                                       duration: e.Attribute("duration")
                                                   ?.Value
                                                   .IfNotNull()
-                                                  .Then(DateTimeOffset.Parse)
+                                                  .Then(TimeSpan.Parse)
                                                   .ElseDefault(),
-                                       Outcome = e.Attribute("outcome")
-                                                  .IfNotNull()
-                                                  .Then(a => a.Value
-                                                              .IfNotNull()
-                                                              .Then(v => (TestOutcome) Enum.Parse(
-                                                                        typeof(TestOutcome), v)))
-                                                  .Else(() => TestOutcome.NotExecuted),
-                                       TestOutputFile = fileInfo,
-                                       Codebase = codebase,
-                                       TestProjectDirectory = codebase?.Directory
-                                                                      .Parent
-                                                                      .Parent
-                                                                      .Parent
-                                                                      .EnsureTrailingSlash()
-                                   };
+                                       startTime: e.Attribute("startTime")
+                                                   ?.Value
+                                                   .IfNotNull()
+                                                   .Then(DateTimeOffset.Parse)
+                                                   .ElseDefault(),
+                                       endTime: e.Attribute("endTime")
+                                                 ?.Value
+                                                 .IfNotNull()
+                                                 .Then(DateTimeOffset.Parse)
+                                                 .ElseDefault(), testProjectDirectory: codebase?.Directory
+                                                                                               .Parent
+                                                                                               .Parent
+                                                                                               .Parent
+                                                                                               .EnsureTrailingSlash(), testOutputFile: fileInfo, codebase: codebase);
                                })
                                .ToArray();
                 }
