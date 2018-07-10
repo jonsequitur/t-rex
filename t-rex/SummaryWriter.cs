@@ -93,7 +93,7 @@ namespace TRex.CommandLine
                                                 className.Items
                                                          .Sum(test => test.Duration?.TotalSeconds)));
 
-                    await console.Out.WriteLineAsync($"{groupingByOutcome.Outcome.ToString().ToUpper()} ({durationForOutcome}s)");
+                    await console.Out.WriteLineAsync($"{groupingByOutcome.Outcome.ToString().ToUpper()}     ({durationForOutcome}s)");
 
                     foreach (var groupingByNamespace in groupingByOutcome.Items)
                     {
@@ -103,7 +103,7 @@ namespace TRex.CommandLine
                                 .Sum(className => className.Items
                                                            .Sum(test => test.Duration?.TotalSeconds));
 
-                        await console.Out.WriteLineAsync($"  {groupingByNamespace.Namespace} ({durationForNamespace}s)");
+                        await console.Out.WriteLineAsync($"  {groupingByNamespace.Namespace}     ({durationForNamespace}s)");
 
                         foreach (var groupingByClassName in groupingByNamespace.Items)
                         {
@@ -111,12 +111,13 @@ namespace TRex.CommandLine
                                 groupingByClassName.Items
                                                    .Sum(className => className.Duration?.TotalSeconds);
 
-                            await console.Out.WriteLineAsync($"    {groupingByClassName.ClassName} ({durationForClass}s)");
+                            await console.Out.WriteLineAsync($"    {groupingByClassName.ClassName}     ({durationForClass}s)");
 
                             foreach (var result in groupingByClassName.Items)
                             {
+                                var durationForTest = result.Duration.IfNotNull().Then(d => d.TotalSeconds ).ElseDefault();
                                 await console.Out.WriteLineAsync(
-                                    $" {result.TestName} ({result.Duration.IfNotNull().Then(d => d.TotalSeconds + "s").ElseDefault()})");
+                                    $"      {result.TestName}     ({durationForTest}s)");
                             }
                         }
                     }
