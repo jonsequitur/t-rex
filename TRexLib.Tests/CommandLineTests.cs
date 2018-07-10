@@ -32,7 +32,7 @@ namespace TRexLib.Tests
         [Fact]
         public async Task When_no_arguments_are_given_then_files_are_discovered_recursively()
         {
-            await CommandLine.Parser.InvokeAsync("-f json", console);
+            await CommandLine.Parser.InvokeAsync("--format json", console);
 
             var results = JsonConvert.DeserializeObject<TestResultSet>(console.Out.ToString(), converters);
 
@@ -47,7 +47,7 @@ namespace TRexLib.Tests
             var filePath = new FileInfo(Path.Combine("TRXs", "example1_Windows.trx"))
                 .FullName;
 
-            await CommandLine.Parser.InvokeAsync($"--file \"{filePath}\" -f json", console);
+            await CommandLine.Parser.InvokeAsync($"--file \"{filePath}\" --format json", console);
             
             output.WriteLine(console.Out.ToString());
 
@@ -60,12 +60,29 @@ namespace TRexLib.Tests
         {
             var directoryPath = new DirectoryInfo(Path.Combine("TRXs", "2")).FullName;
 
-            await CommandLine.Parser.InvokeAsync($"--path \"{directoryPath}\" -f json", console);
+            await CommandLine.Parser.InvokeAsync($"--path \"{directoryPath}\" --format json", console);
 
             output.WriteLine(console.Out.ToString());
 
             var results = JsonConvert.DeserializeObject<TestResultSet>(console.Out.ToString(), converters);
             results.Should().HaveCount(18);
+        }
+
+        [Fact]
+        public async Task A_filter_expression_can_be_used_to_match_only_specific_tests()
+        {
+            var directoryPath = new DirectoryInfo(Path.Combine("TRXs", "2")).FullName;
+
+            await CommandLine.Parser.InvokeAsync($"--path \"{directoryPath}\" --filter *verbosity* --format json", console);
+
+            output.WriteLine(console.Error.ToString());
+            output.WriteLine(console.Out.ToString());
+
+            var results = JsonConvert.DeserializeObject<TestResultSet>(console.Out.ToString(), converters);
+
+            results.Should().HaveCount(10);
+
+            results.Select(r => r.FullyQualifiedTestName).Should().OnlyContain(name => name.Contains("verbosity"));
         }
     }
 }

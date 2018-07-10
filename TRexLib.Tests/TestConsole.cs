@@ -18,7 +18,7 @@ namespace TRexLib.Tests
 
         public virtual ConsoleColor ForegroundColor { get; set; }
 
-        public int WindowWidth { get; set; }
+        public int WindowWidth { get; set; } = 80;
 
         public virtual void ResetColor()
         {

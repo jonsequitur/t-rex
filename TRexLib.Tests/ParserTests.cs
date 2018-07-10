@@ -25,7 +25,7 @@ namespace TRexLib.Tests
 
             results.Should().HaveCount(2);
 
-            results.Select(r => r.TestName)
+            results.Select(r => r.FullyQualifiedTestName)
                    .ShouldBeEquivalentTo(new[]
                    {
                        "Microsoft.DotNet.Cli.Sln.Internal.Tests.GivenAnSlnFile.WhenGivenAValidPathItReadsAnSlnFile",
@@ -40,7 +40,7 @@ namespace TRexLib.Tests
                 new FileInfo(Path.Combine(Directory.GetCurrentDirectory(), "TRXs", "example1_Windows.trx"))
                     .Parse();
 
-            results.Single(r => r.TestName == "Microsoft.DotNet.Cli.Sln.Internal.Tests.GivenAnSlnFile.WhenGivenAValidPathItReadsAnSlnFile")
+            results.Single(r => r.FullyQualifiedTestName == "Microsoft.DotNet.Cli.Sln.Internal.Tests.GivenAnSlnFile.WhenGivenAValidPathItReadsAnSlnFile")
                    .Duration
                    .Should()
                    .Be(138.Milliseconds());
@@ -53,7 +53,7 @@ namespace TRexLib.Tests
                 new FileInfo(Path.Combine("TRXs", "example1_Windows.trx"))
                     .Parse();
 
-            results.Single(r => r.TestName == "Microsoft.DotNet.Cli.Sln.Internal.Tests.GivenAnSlnFile.WhenGivenAValidPathItReadsAnSlnFile")
+            results.Single(r => r.FullyQualifiedTestName == "Microsoft.DotNet.Cli.Sln.Internal.Tests.GivenAnSlnFile.WhenGivenAValidPathItReadsAnSlnFile")
                    .StartTime
                    .Should()
                    .Be(DateTimeOffset.Parse("2016-12-21T11:15:51.8308573-08:00"));
@@ -66,7 +66,7 @@ namespace TRexLib.Tests
                 new FileInfo(Path.Combine("TRXs", "example1_Windows.trx"))
                     .Parse();
 
-            results.Single(r => r.TestName == "Microsoft.DotNet.Cli.Sln.Internal.Tests.GivenAnSlnFile.WhenGivenAValidPathItReadsAnSlnFile")
+            results.Single(r => r.FullyQualifiedTestName == "Microsoft.DotNet.Cli.Sln.Internal.Tests.GivenAnSlnFile.WhenGivenAValidPathItReadsAnSlnFile")
                    .EndTime
                    .Should()
                    .Be(DateTimeOffset.Parse("2016-12-21T11:15:51.8308573-08:00"));
@@ -79,7 +79,7 @@ namespace TRexLib.Tests
                 new FileInfo(Path.Combine("TRXs", "example1_Windows.trx"))
                     .Parse();
 
-            results.Single(r => r.TestName == "Microsoft.DotNet.Cli.Sln.Internal.Tests.GivenAnSlnFile.WhenGivenAValidPathItReadsAnSlnFile")
+            results.Single(r => r.FullyQualifiedTestName == "Microsoft.DotNet.Cli.Sln.Internal.Tests.GivenAnSlnFile.WhenGivenAValidPathItReadsAnSlnFile")
                    .Outcome
                    .Should()
                    .Be(TestOutcome.Passed);
@@ -92,7 +92,7 @@ namespace TRexLib.Tests
                 new FileInfo(Path.Combine("TRXs", "example1_Windows.trx"))
                     .Parse();
 
-            results.Single(r => r.TestName == "Microsoft.DotNet.Cli.Sln.Internal.Tests.GivenAnSlnFile.WhenGivenAValidPathItReadsModifiesThenWritesAnSln")
+            results.Single(r => r.FullyQualifiedTestName == "Microsoft.DotNet.Cli.Sln.Internal.Tests.GivenAnSlnFile.WhenGivenAValidPathItReadsModifiesThenWritesAnSln")
                    .Outcome
                    .Should()
                    .Be(TestOutcome.Failed);
@@ -105,7 +105,7 @@ namespace TRexLib.Tests
                 new FileInfo(Path.Combine("TRXs", "example1_Windows.trx"))
                     .Parse();
 
-            results.Single(r => r.TestName == "Microsoft.DotNet.Cli.Sln.Internal.Tests.GivenAnSlnFile.WhenGivenAValidPathItReadsModifiesThenWritesAnSln")
+            results.Single(r => r.FullyQualifiedTestName == "Microsoft.DotNet.Cli.Sln.Internal.Tests.GivenAnSlnFile.WhenGivenAValidPathItReadsModifiesThenWritesAnSln")
                    .TestProjectDirectory
                    .FullName
                    .Should()
@@ -119,7 +119,7 @@ namespace TRexLib.Tests
                 new FileInfo(Path.Combine("TRXs", "example1_Windows.trx"))
                     .Parse();
 
-            results.Single(r => r.TestName == "Microsoft.DotNet.Cli.Sln.Internal.Tests.GivenAnSlnFile.WhenGivenAValidPathItReadsModifiesThenWritesAnSln")
+            results.Single(r => r.FullyQualifiedTestName == "Microsoft.DotNet.Cli.Sln.Internal.Tests.GivenAnSlnFile.WhenGivenAValidPathItReadsModifiesThenWritesAnSln")
                    .Codebase
                    .FullName
                    .Should()
@@ -134,7 +134,7 @@ namespace TRexLib.Tests
                 new FileInfo(Path.Combine("TRXs", "1", "example1_OSX.trx"))
                     .Parse();
 
-            results.Single(r => r.TestName == "Microsoft.DotNet.Cli.Utils.Tests.GivenARootedCommandResolver.It_escapes_CommandArguments_when_returning_a_CommandSpec")
+            results.Single(r => r.FullyQualifiedTestName == "Microsoft.DotNet.Cli.Utils.Tests.GivenARootedCommandResolver.It_escapes_CommandArguments_when_returning_a_CommandSpec")
                    .TestProjectDirectory
                    .FullName
                    .Should()
@@ -148,7 +148,7 @@ namespace TRexLib.Tests
                 new FileInfo(Path.Combine("TRXs", "1", "example1_OSX.trx"))
                     .Parse();
 
-            results.Single(r => r.TestName == "Microsoft.DotNet.Cli.Utils.Tests.GivenARootedCommandResolver.It_escapes_CommandArguments_when_returning_a_CommandSpec")
+            results.Single(r => r.FullyQualifiedTestName == "Microsoft.DotNet.Cli.Utils.Tests.GivenARootedCommandResolver.It_escapes_CommandArguments_when_returning_a_CommandSpec")
                    .Codebase
                    .FullName
                    .Should()
