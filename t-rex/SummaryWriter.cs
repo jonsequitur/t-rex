@@ -10,6 +10,13 @@ namespace TRex.CommandLine
 {
     public class SummaryWriter : IConsoleWriter
     {
+        public bool ShowTestOutput { get; }
+
+        public SummaryWriter(bool showTestOutput)
+        {
+            ShowTestOutput = showTestOutput;
+        }
+
         public async Task WriteAsync(IConsole console, TestResultSet testResults)
         {
             if (console == null)
@@ -42,20 +49,10 @@ namespace TRex.CommandLine
             }
         }
 
-        public static async Task WriteResults(
+        public async Task WriteResults(
             IConsole console,
             IEnumerable<TestResult> results)
         {
-            if (console == null)
-            {
-                throw new ArgumentNullException(nameof(console));
-            }
-
-            if (results == null)
-            {
-                throw new ArgumentNullException(nameof(results));
-            }
-
             var groupings = results
                             .GroupBy(result => result.Outcome)
                             .Select(
@@ -93,7 +90,9 @@ namespace TRex.CommandLine
                                                 className.Items
                                                          .Sum(test => test.Duration?.TotalSeconds)));
 
-                    await console.Out.WriteLineAsync($"{groupingByOutcome.Outcome.ToString().ToUpper()}     ({durationForOutcome}s)");
+                    await console.Out.WriteAsync($"{groupingByOutcome.Outcome.ToString().ToUpper()}     ");
+
+                    await WriteDuration(durationForOutcome);
 
                     foreach (var groupingByNamespace in groupingByOutcome.Items)
                     {
@@ -103,7 +102,9 @@ namespace TRex.CommandLine
                                 .Sum(className => className.Items
                                                            .Sum(test => test.Duration?.TotalSeconds));
 
-                        await console.Out.WriteLineAsync($"  {groupingByNamespace.Namespace}     ({durationForNamespace}s)");
+                        await console.Out.WriteAsync($"  {groupingByNamespace.Namespace}     ");
+
+                        await WriteDuration(durationForNamespace);
 
                         foreach (var groupingByClassName in groupingByNamespace.Items)
                         {
@@ -111,19 +112,45 @@ namespace TRex.CommandLine
                                 groupingByClassName.Items
                                                    .Sum(className => className.Duration?.TotalSeconds);
 
-                            await console.Out.WriteLineAsync($"    {groupingByClassName.ClassName}     ({durationForClass}s)");
+                            await console.Out.WriteAsync($"    {groupingByClassName.ClassName}     ");
+
+                            await WriteDuration(durationForClass);
 
                             foreach (var result in groupingByClassName.Items)
                             {
-                                var durationForTest = result.Duration.IfNotNull().Then(d => d.TotalSeconds ).ElseDefault();
-                                await console.Out.WriteLineAsync(
-                                    $"      {result.TestName}     ({durationForTest}s)");
+                                var durationForTest = result.Duration.IfNotNull().Then(d => d.TotalSeconds).ElseDefault();
+                                await console.Out.WriteAsync($"      {result.TestName}     ");
+
+                                await WriteDuration(durationForTest);
+                            }
+
+                            if (ShowTestOutput &&
+                                groupingByOutcome.Outcome == TestOutcome.Failed)
+                            {
+                                foreach (var result in groupingByClassName.Items)
+                                {
+                                    if (!string.IsNullOrWhiteSpace(result.Output))
+                                    {
+                                        using (console.SetColor(System.ConsoleColor.Gray))
+                                        {
+                                            await console.Out.WriteLineAsync($"        {result.Output.Replace("\r\n", "\n").Replace("\n", "        ")}");
+                                        }
+                                    }
+                                }
                             }
                         }
                     }
                 }
 
                 await console.Out.WriteLineAsync();
+            }
+
+            async Task WriteDuration(double? duration)
+            {
+                using (console.SetColor(System.ConsoleColor.Gray))
+                {
+                    await console.Out.WriteLineAsync($"({duration}s)");
+                }
             }
         }
     }

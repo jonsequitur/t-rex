@@ -23,10 +23,6 @@ namespace TRex.CommandLine
                               .UseSuggestDirective()
                               .UseParseErrorReporting()
                               .UseExceptionHandler()
-                              .AddOption("--path",
-                                         "Directory or directories to search for .trx files. Only the most recent .trx file in a given directory is used.",
-                                         a => a.WithDefaultValue(Directory.GetCurrentDirectory)
-                                               .ParseArgumentsAs<DirectoryInfo[]>())
                               .AddOption("--file",
                                          ".trx file(s) to parse",
                                          a => a.ExistingFilesOnly()
@@ -34,10 +30,17 @@ namespace TRex.CommandLine
                               .AddOption("--filter",
                                          "Only look at tests matching the filter. \"*\" can be used as a wildcard.",
                                          args => args.ExactlyOne())
-                              .AddOption(new[] { "--format" },
+                              .AddOption("--format",
                                          "The format for the output.",
                                          args => args.WithDefaultValue(() => OutputFormat.Summary)
-                                                     .ParseArgumentsAs<OutputFormat>());
+                                                     .ParseArgumentsAs<OutputFormat>())
+                              .AddOption("--path",
+                                         "Directory or directories to search for .trx files. Only the most recent .trx file in a given directory is used.",
+                                         a => a.WithDefaultValue(Directory.GetCurrentDirectory)
+                                               .ParseArgumentsAs<DirectoryInfo[]>())
+                              .AddOption("--show-test-output",
+                                         "For failed tests, display the output.",
+                                         a => a.ParseArgumentsAs<bool>());
 
             commandLine.Description = "A command line testing tool for .NET";
 
@@ -51,6 +54,7 @@ namespace TRex.CommandLine
             FileInfo[] file,
             DirectoryInfo[] path,
             string filter,
+            bool showTestOutput,
             IConsole console = null)
         {
             var allFiles = new List<FileInfo>();
@@ -88,7 +92,7 @@ namespace TRex.CommandLine
             switch (format)
             {
                 case OutputFormat.Summary:
-                    writer = new SummaryWriter();
+                    writer = new SummaryWriter(showTestOutput);
                     break;
                 case OutputFormat.Json:
                     writer = new JsonWriter();
