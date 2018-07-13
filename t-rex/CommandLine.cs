@@ -40,11 +40,11 @@ namespace TRex.CommandLine
                                                .ParseArgumentsAs<DirectoryInfo[]>())
                               .AddOption("--show-test-output",
                                          "For failed tests, display the output.",
-                                         a => a.ParseArgumentsAs<bool>());
+                                         a => a.ParseArgumentsAs<bool>())
+                              .AddVersionOption()
+                              .OnExecute(typeof(CommandLine).GetMethod(nameof(InvokeAsync)));
 
             commandLine.Description = "A command line testing tool for .NET";
-
-            commandLine.OnExecute(typeof(CommandLine).GetMethod(nameof(InvokeAsync)));
 
             Parser = commandLine.Build();
         }
