@@ -12,7 +12,7 @@ using Xunit.Abstractions;
 
 namespace TRexLib.Tests
 {
-    public class CommandLineTests
+    public class CommandLineTestDiscoveryTests
     {
         private readonly ITestOutputHelper output;
 
@@ -24,13 +24,13 @@ namespace TRexLib.Tests
             new DirectoryInfoJsonConverter()
         };
 
-        public CommandLineTests(ITestOutputHelper output)
+        public CommandLineTestDiscoveryTests(ITestOutputHelper output)
         {
             this.output = output;
         }
 
         [Fact]
-        public async Task When_no_arguments_are_given_then_files_are_discovered_recursively()
+        public async Task When_no_files_are_specified_are_given_then_files_are_discovered_recursively()
         {
             await CommandLine.Parser.InvokeAsync("--format json", console);
 
@@ -42,7 +42,7 @@ namespace TRexLib.Tests
         }
 
         [Fact]
-        public async Task When_one_argument_is_given_and_it_is_a_file_path_then_it_is_interpreted_as_a_file_path()
+        public async Task When_one_file_is_specified_and_it_is_a_file_path_then_it_is_interpreted_as_a_file_path()
         {
             var filePath = new FileInfo(Path.Combine("TRXs", "example1_Windows.trx"))
                 .FullName;

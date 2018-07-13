@@ -8,11 +8,11 @@ using TRexLib;
 
 namespace TRex.CommandLine
 {
-    public class SummaryWriter : IConsoleWriter
+    public class SummaryView : IConsoleView<TestResultSet>
     {
         public bool ShowTestOutput { get; }
 
-        public SummaryWriter(bool showTestOutput)
+        public SummaryView(bool showTestOutput)
         {
             ShowTestOutput = showTestOutput;
         }
@@ -122,18 +122,28 @@ namespace TRex.CommandLine
                                 await console.Out.WriteAsync($"      {result.TestName}     ");
 
                                 await WriteDuration(durationForTest);
-                            }
 
-                            if (ShowTestOutput &&
-                                groupingByOutcome.Outcome == TestOutcome.Failed)
-                            {
-                                foreach (var result in groupingByClassName.Items)
+                                if (ShowTestOutput &&
+                                    groupingByOutcome.Outcome == TestOutcome.Failed)
                                 {
                                     if (!string.IsNullOrWhiteSpace(result.Output))
                                     {
                                         using (console.SetColor(System.ConsoleColor.Gray))
                                         {
-                                            await console.Out.WriteLineAsync($"        {result.Output.Replace("\r\n", "\n").Replace("\n", "        ")}");
+                                            await console.Out.WriteLineAsync($"        {result.Output.Replace("\r\n", "\n").Replace("\n", "        \n")}");
+                                        }
+                                    }
+
+                                    if (!string.IsNullOrWhiteSpace(result.Stacktrace))
+                                    {
+                                        using (console.SetColor(System.ConsoleColor.DarkGray))
+                                        {
+                                            await console.Out.WriteLineAsync($"        Stack trace:");
+                                        }
+
+                                        using (console.SetColor(System.ConsoleColor.Gray))
+                                        {
+                                            await console.Out.WriteLineAsync($"        {result.Stacktrace.Replace("\r\n", "\n").Replace("\n", "          \n")}");
                                         }
                                     }
                                 }
