@@ -4,6 +4,7 @@ using Xunit;
 
 namespace TRexLib.Tests
 {
+
     public class TestResultTests
     {
         [Theory]

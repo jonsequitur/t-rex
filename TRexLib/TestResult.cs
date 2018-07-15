@@ -15,7 +15,8 @@ namespace TRexLib
             DirectoryInfo testProjectDirectory = null,
             FileInfo testOutputFile = null,
             FileInfo codebase = null,
-            string output = null)
+            string output = null,
+            string stacktrace = null)
         {
             FullyQualifiedTestName = fullyQualifiedTestName;
             Duration = duration;
@@ -26,6 +27,7 @@ namespace TRexLib
             TestOutputFile = testOutputFile;
             Codebase = codebase;
             Output = output;
+            Stacktrace = stacktrace;
 
             var testNameParts = fullyQualifiedTestName.Split('.');
             TestName = testNameParts[testNameParts.Length - 1];
@@ -45,6 +47,7 @@ namespace TRexLib
         public FileInfo TestOutputFile { get; }
         public FileInfo Codebase { get; }
         public string Output { get; }
+        public string Stacktrace { get; }
 
         public string Namespace { get; }
         public string TestName { get; }

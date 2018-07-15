@@ -40,11 +40,11 @@ namespace TRex.CommandLine
                                                .ParseArgumentsAs<DirectoryInfo[]>())
                               .AddOption("--show-test-output",
                                          "For failed tests, display the output.",
-                                         a => a.ParseArgumentsAs<bool>());
+                                         a => a.ParseArgumentsAs<bool>())
+                              .AddVersionOption()
+                              .OnExecute(typeof(CommandLine).GetMethod(nameof(InvokeAsync)));
 
             commandLine.Description = "A command line testing tool for .NET";
-
-            commandLine.OnExecute(typeof(CommandLine).GetMethod(nameof(InvokeAsync)));
 
             Parser = commandLine.Build();
         }
@@ -87,19 +87,19 @@ namespace TRex.CommandLine
                     resultSet.Where(r => regex.IsMatch(r.FullyQualifiedTestName)));
             }
 
-            IConsoleWriter writer = null;
+            IConsoleView<TestResultSet> view = null;
 
             switch (format)
             {
                 case OutputFormat.Summary:
-                    writer = new SummaryWriter(showTestOutput);
+                    view = new SummaryView(showTestOutput);
                     break;
                 case OutputFormat.Json:
-                    writer = new JsonWriter();
+                    view = new JsonView();
                     break;
             }
 
-            await writer.WriteAsync(console, resultSet);
+            await view.WriteAsync(console, resultSet);
         }
 
         private static TestResultSet Create(
