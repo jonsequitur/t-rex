@@ -1,3 +1,4 @@
+image: Visual Studio 2017
 artifacts:
   - path: '**\t-rex*.nupkg'
 
@@ -5,9 +6,13 @@ configuration:
   - Release
 
 build_script:
-  - ps: >-
-      ./build.ps1
+  - cmd: >-
+      dotnet build Trex.sln -p:Version=%APPVEYOR_BUILD_VERSION%
+
+after_build:
+  - cmd: >-
+      dotnet pack .\t-rex\t-rex.csproj -c:release --no-build -p:Version=%APPVEYOR_BUILD_VERSION%
 
 test_script:
-  - ps: >-
-      ./build.ps1 -test
+  - cmd: >-
+      dotnet test .\TRexLib.Tests\TRexLib.Tests.csproj
