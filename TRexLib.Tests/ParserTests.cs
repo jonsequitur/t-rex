@@ -16,6 +16,8 @@ namespace TRexLib.Tests
             this.output = output;
         }
 
+        [Fact] public void does_CI_work_now() => throw new Exception("oops!");
+
         [Fact]
         public void Test_names_are_read_correctly()
         {
