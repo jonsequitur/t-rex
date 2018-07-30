@@ -13,7 +13,7 @@
 
   <ItemGroup>
     <PackageReference Include="newtonsoft.json" Version="11.0.2" />
-    <PackageReference Include="System.CommandLine.Experimental" Version="0.1.0-alpha-63111-01" />
+    <PackageReference Include="System.CommandLine.Experimental" Version="0.1.0-alpha-63130-01" />
   </ItemGroup>
   
 </Project>

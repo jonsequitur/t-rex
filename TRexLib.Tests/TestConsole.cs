@@ -1,5 +1,6 @@
 using System;
 using System.CommandLine;
+using System.CommandLine.Rendering;
 using System.IO;
 
 namespace TRexLib.Tests
@@ -13,6 +14,8 @@ namespace TRexLib.Tests
         }
 
         public TextWriter Error { get; }
+
+        public Region GetRegion() => new Region(120, 80, 0, 0);
 
         public TextWriter Out { get; }
 
