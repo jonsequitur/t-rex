@@ -48,7 +48,7 @@ namespace TRexLib.Tests
                 .FullName;
 
             await CommandLine.Parser.InvokeAsync($"--file \"{filePath}\" --format json", console);
-            
+
             output.WriteLine(console.Out.ToString());
 
             var results = JsonConvert.DeserializeObject<TestResultSet>(console.Out.ToString(), converters);
@@ -82,7 +82,29 @@ namespace TRexLib.Tests
 
             results.Should().HaveCount(10);
 
-            results.Select(r => r.FullyQualifiedTestName).Should().OnlyContain(name => name.Contains("verbosity"));
+            results.Select(r => r.FullyQualifiedTestName).Should().OnlyContain(name => name.Contains("verbosity", StringComparison.OrdinalIgnoreCase));
+        }
+
+        [Fact]
+        public async Task A_filter_expression_is_case_insensitive()
+        {
+            var directoryPath = new DirectoryInfo(Path.Combine("TRXs", "1")).FullName;
+
+            await CommandLine.Parser.InvokeAsync($"--path \"{directoryPath}\" --filter *DOTNET* --format json", console);
+
+            output.WriteLine(console.Error.ToString());
+            output.WriteLine(console.Out.ToString());
+
+            var results = JsonConvert.DeserializeObject<TestResultSet>(console.Out.ToString(), converters);
+
+            results.Select(r => r.FullyQualifiedTestName)
+                   .Where(name => name.Contains("DOTNET", StringComparison.Ordinal))
+                   .Should()
+                   .HaveCount(1);
+            results.Select(r => r.FullyQualifiedTestName)
+                   .Where(name => name.Contains("DotNet", StringComparison.Ordinal))
+                   .Should()
+                   .HaveCount(53);
         }
     }
 }

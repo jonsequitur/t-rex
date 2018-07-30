@@ -81,7 +81,7 @@ namespace TRex.CommandLine
 
             if (!string.IsNullOrWhiteSpace(filter))
             {
-                var regex = new Regex($"^{filter.Replace("*", ".*")}$");
+                var regex = new Regex($"^{filter.Replace("*", ".*")}$", RegexOptions.IgnoreCase);
 
                 resultSet = new TestResultSet(
                     resultSet.Where(r => regex.IsMatch(r.FullyQualifiedTestName)));
