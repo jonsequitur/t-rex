@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.CommandLine;
 using System.CommandLine.Builder;
@@ -81,6 +81,8 @@ namespace TRex.CommandLine
 
             if (!string.IsNullOrWhiteSpace(filter))
             {
+                filter = $"*{filter}*";
+
                 var regex = new Regex($"^{filter.Replace("*", ".*")}$", RegexOptions.IgnoreCase);
 
                 resultSet = new TestResultSet(
