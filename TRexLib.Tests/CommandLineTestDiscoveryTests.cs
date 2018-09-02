@@ -73,7 +73,7 @@ namespace TRexLib.Tests
         {
             var directoryPath = new DirectoryInfo(Path.Combine("TRXs", "2")).FullName;
 
-            await CommandLine.Parser.InvokeAsync($"--path \"{directoryPath}\" --filter *verbosity* --format json", console);
+            await CommandLine.Parser.InvokeAsync($"--path \"{directoryPath}\" --filter verbosity --format json", console);
 
             output.WriteLine(console.Error.ToString());
             output.WriteLine(console.Out.ToString());
