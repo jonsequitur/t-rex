@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.CommandLine;
 using System.CommandLine.Builder;
@@ -28,10 +28,10 @@ namespace TRex.CommandLine
                                          a => a.ExistingFilesOnly()
                                                .ParseArgumentsAs<FileInfo[]>())
                               .AddOption("--filter",
-                                         "Only look at tests matching the filter. \"*\" can be used as a wildcard.",
+                                         "Only look at tests containing the specified text. \"*\" can be used as a wildcard.",
                                          args => args.ExactlyOne())
                               .AddOption("--format",
-                                         "The format for the output.",
+                                         "The format for the output. (Summary, JSON)",
                                          args => args.WithDefaultValue(() => OutputFormat.Summary)
                                                      .ParseArgumentsAs<OutputFormat>())
                               .AddOption("--path",
@@ -39,7 +39,7 @@ namespace TRex.CommandLine
                                          a => a.WithDefaultValue(Directory.GetCurrentDirectory)
                                                .ParseArgumentsAs<DirectoryInfo[]>())
                               .AddOption("--hide-test-output",
-                                         "For failed tests, display the output.",
+                                         "For failed tests, hide detailed test output. (Defaults to false.)",
                                          a => a.ParseArgumentsAs<bool>())
                               .AddVersionOption()
                               .OnExecute(typeof(CommandLine).GetMethod(nameof(InvokeAsync)));
