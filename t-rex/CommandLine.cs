@@ -38,7 +38,7 @@ namespace TRex.CommandLine
                                          "Directory or directories to search for .trx files. Only the most recent .trx file in a given directory is used.",
                                          a => a.WithDefaultValue(Directory.GetCurrentDirectory)
                                                .ParseArgumentsAs<DirectoryInfo[]>())
-                              .AddOption("--show-test-output",
+                              .AddOption("--hide-test-output",
                                          "For failed tests, display the output.",
                                          a => a.ParseArgumentsAs<bool>())
                               .AddVersionOption()
@@ -49,12 +49,12 @@ namespace TRex.CommandLine
             Parser = commandLine.Build();
         }
 
-        public static async Task InvokeAsync(
+        public static async Task<int> InvokeAsync(
             OutputFormat format,
             FileInfo[] file,
             DirectoryInfo[] path,
             string filter,
-            bool showTestOutput,
+            bool hideTestOutput,
             IConsole console = null)
         {
             var allFiles = new List<FileInfo>();
@@ -92,7 +92,7 @@ namespace TRex.CommandLine
             switch (format)
             {
                 case OutputFormat.Summary:
-                    view = new SummaryView(showTestOutput);
+                    view = new SummaryView(hideTestOutput);
                     break;
                 case OutputFormat.Json:
                     view = new JsonView();
@@ -100,6 +100,19 @@ namespace TRex.CommandLine
             }
 
             await view.WriteAsync(console, resultSet);
+
+            if (resultSet.Failed.Any())
+            {
+                return 1;
+            }
+            else if (!resultSet.Any())
+            {
+                return -1;
+            }
+            else
+            {
+                return 0;
+            }
         }
 
         private static TestResultSet Create(

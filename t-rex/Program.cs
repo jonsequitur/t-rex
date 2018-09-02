@@ -6,9 +6,9 @@ namespace TRex.CommandLine
 {
     public class Program
     {
-        static async Task Main(string[] args)
+        static async Task<int> Main(string[] args)
         {
-            await CommandLine.Parser.InvokeAsync(args);
+           return await CommandLine.Parser.InvokeAsync(args);
         }
     }
 }
