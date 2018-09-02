@@ -10,11 +10,11 @@ namespace TRex.CommandLine
 {
     public class SummaryView : IConsoleView<TestResultSet>
     {
-        public bool ShowTestOutput { get; }
+        public bool HideTestOutput { get; }
 
-        public SummaryView(bool showTestOutput)
+        public SummaryView(bool hideTestOutput)
         {
-            ShowTestOutput = showTestOutput;
+            HideTestOutput = hideTestOutput;
         }
 
         public async Task WriteAsync(IConsole console, TestResultSet testResults)
@@ -123,7 +123,7 @@ namespace TRex.CommandLine
 
                                 await WriteDuration(durationForTest);
 
-                                if (ShowTestOutput &&
+                                if (!HideTestOutput &&
                                     groupingByOutcome.Outcome == TestOutcome.Failed)
                                 {
                                     if (!string.IsNullOrWhiteSpace(result.Output))
