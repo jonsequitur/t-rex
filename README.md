@@ -29,12 +29,12 @@ Usage:
 
 Options:
   --file                .trx file(s) to parse
-  --filter              Only look at tests matching the filter. "*" can be  
-                        used as a wildcard.
-  --path                Directory or directories to search for .trx files. 
-                        Only the most recent .trx file in a
-                        given directory is used.
-  --show-test-output    For failed tests, display the output.
+  --filter              Only look at tests containing the specified text. "*" can be used as a
+                        wildcard.
+  --format              The format for the output. (Summary, JSON)
+  --path                Directory or directories to search for .trx files. Only the most recent
+                        .trx file in a given directory is used.
+  --hide-test-output    For failed tests, hide detailed test output. (Defaults to false.)
   --version             Display version information
 ```
 
