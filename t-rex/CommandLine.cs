@@ -18,11 +18,17 @@ namespace TRex.CommandLine
         static CommandLine()
         {
             var commandLine = new CommandLineBuilder()
+                              
                               .UseParseDirective()
-                              .UseHelp()
                               .UseSuggestDirective()
                               .UseParseErrorReporting()
+                              .RegisterWithDotnetSuggest()
                               .UseExceptionHandler()
+
+
+                              .UseHelp()
+
+
                               .AddOption("--file",
                                          ".trx file(s) to parse",
                                          a => a.ExistingFilesOnly()
@@ -42,6 +48,8 @@ namespace TRex.CommandLine
                                          "For failed tests, hide detailed test output. (Defaults to false.)",
                                          a => a.ParseArgumentsAs<bool>())
                               .AddVersionOption()
+
+
                               .OnExecute(typeof(CommandLine).GetMethod(nameof(InvokeAsync)));
 
             commandLine.Description = "A command line testing tool for .NET";
