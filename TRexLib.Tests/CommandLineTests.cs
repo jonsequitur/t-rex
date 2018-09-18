@@ -53,9 +53,9 @@ namespace TRexLib.Tests
 
             output.WriteLine($"result: {result}");
 
-            await parser.InvokeAsync(result, console);
+            var exitCode = await parser.InvokeAsync(result, console);
 
-            result.Should().Be(-1);
+            exitCode.Should().Be(-1);
         }
     }
 }
