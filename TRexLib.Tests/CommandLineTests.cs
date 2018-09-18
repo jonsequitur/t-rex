@@ -6,12 +6,19 @@ using System.Threading.Tasks;
 using FluentAssertions;
 using TRex.CommandLine;
 using Xunit;
+using Xunit.Abstractions;
 
 namespace TRexLib.Tests
 {
     public class CommandLineTests
     {
         private readonly IConsole console = new TestConsole();
+        private readonly ITestOutputHelper output;
+
+        public CommandLineTests(ITestOutputHelper output)
+        {
+            this.output = output;
+        }
 
         [Fact]
         public async Task When_all_tests_pass_then_the_result_code_is_0()
@@ -38,7 +45,15 @@ namespace TRexLib.Tests
         {
             var directoryPath = new DirectoryInfo(Path.Combine("TRXs")).FullName;
 
-            var result = await CommandLine.Parser.InvokeAsync($"--path \"{directoryPath}\" --filter that-matches-nothing", console);
+            output.WriteLine($"directoryPath: {directoryPath}");
+
+            var parser = CommandLine.Parser;
+
+            var result = parser.Parse($"--path \"{directoryPath}\" --filter that-matches-nothing");
+
+            output.WriteLine($"result: {result}");
+
+            await parser.InvokeAsync(result, console);
 
             result.Should().Be(-1);
         }
