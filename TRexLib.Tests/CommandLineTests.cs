@@ -55,6 +55,12 @@ namespace TRexLib.Tests
 
             var exitCode = await parser.InvokeAsync(result, console);
 
+            output.WriteLine("Out:");
+            output.WriteLine(console.Out.ToString());
+
+            output.WriteLine("Error:");
+            output.WriteLine(console.Error.ToString());
+
             exitCode.Should().Be(-1);
         }
     }
