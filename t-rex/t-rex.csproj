@@ -8,12 +8,17 @@
     <LangVersion>latest</LangVersion>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Remove="TestResults\**" />
+    <EmbeddedResource Remove="TestResults\**" />
+    <None Remove="TestResults\**" />
+  </ItemGroup>
+  <ItemGroup>
     <ProjectReference Include="..\TRexLib\TRexLib.csproj" />
   </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="newtonsoft.json" Version="11.0.2" />
-    <PackageReference Include="System.CommandLine.Experimental" Version="0.1.0-alpha-63319-01" />
+    <PackageReference Include="System.CommandLine.Experimental" Version="0.1.0-alpha-63319-02" />
   </ItemGroup>
   
 </Project>
