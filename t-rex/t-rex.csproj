@@ -1,4 +1,5 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk" ToolsVersion="15.0">
+
   <PropertyGroup>
     <OutputType>exe</OutputType>
     <TargetFramework>netcoreapp2.1</TargetFramework>
@@ -6,12 +7,20 @@
     <ToolCommandName>t-rex</ToolCommandName>
     <PackAsTool>true</PackAsTool>
     <LangVersion>latest</LangVersion>
+
+    <Title>A command line tool for testing with dotnet</Title> 
+    <Description>With t-rex, you can explore the results of your most recent test run. It discovers, parses, and displays the contents of .trx files.</Description>
+    <Authors>jonsequitur</Authors>
+    <PackageTags>dotnet testing trx</PackageTags>
+    <RepositoryUrl>https://github.com/jonsequitur/t-rex</RepositoryUrl>
   </PropertyGroup>
+
   <ItemGroup>
     <Compile Remove="TestResults\**" />
     <EmbeddedResource Remove="TestResults\**" />
     <None Remove="TestResults\**" />
   </ItemGroup>
+
   <ItemGroup>
     <ProjectReference Include="..\TRexLib\TRexLib.csproj" />
   </ItemGroup>
