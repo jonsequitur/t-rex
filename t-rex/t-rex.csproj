@@ -27,7 +27,11 @@
 
   <ItemGroup>
     <PackageReference Include="newtonsoft.json" Version="11.0.2" />
-    <PackageReference Include="System.CommandLine.Experimental" Version="0.1.0-alpha-63322-01" />
+    <PackageReference Include="pocket.disposable" Version="1.0.4">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="System.CommandLine.Experimental" Version="0.1.0-alpha-63402-01" />
   </ItemGroup>
   
 </Project>

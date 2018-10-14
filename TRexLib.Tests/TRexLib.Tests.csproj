@@ -24,7 +24,7 @@
     <PackageReference Include="newtonsoft.json" Version="11.0.2" />
     <PackageReference Include="xunit" Version="2.3.1" />
     <PackageReference Include="xunit.runner.visualstudio" Version="2.3.1" />
-    <PackageReference Include="System.CommandLine.Experimental" Version="0.1.0-alpha-63322-01" />
+    <PackageReference Include="System.CommandLine.Experimental" Version="0.1.0-alpha-63402-01" />
   </ItemGroup>
   
   <ItemGroup>
