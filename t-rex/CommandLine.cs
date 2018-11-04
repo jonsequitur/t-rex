@@ -21,11 +21,12 @@ namespace TRex.CommandLine
             var commandLine = new CommandLineBuilder()
                               
                               .UseParseDirective()
+                              .UseDebugDirective()
                               .UseSuggestDirective()
                               .UseParseErrorReporting()
                               .RegisterWithDotnetSuggest()
                               .UseExceptionHandler()
-
+                              
                               .UseHelp()
 
                               .AddOption("--file",
@@ -109,26 +110,31 @@ namespace TRex.CommandLine
                     resultSet.Where(r => regex.IsMatch(r.FullyQualifiedTestName)));
             }
 
-            IConsoleView<TestResultSet> view = null;
-
             switch (format)
             {
                 case OutputFormat.Summary:
+                {
                     if (!ansiMode)
                     {
-                        view = new SummaryView(hideTestOutput);
+                        var view = new SummaryView(hideTestOutput);
+                        await view.WriteAsync(console, resultSet);
                     }
                     else
                     {
-                        view = new AnsiSummaryView(hideTestOutput);
+                        var view = new AnsiSummaryView(hideTestOutput, resultSet);
+                        view.Render(new ConsoleRenderer(console), console.GetRegion());
                     }
-                    break;
-                case OutputFormat.Json:
-                    view = new JsonView();
-                    break;
-            }
 
-            await view.WriteAsync(console, resultSet);
+                    break;
+                }
+
+                case OutputFormat.Json:
+                {
+                    var view = new JsonView();
+                    await view.WriteAsync(console, resultSet);
+                    break;
+                }
+            }
 
             if (resultSet.Failed.Any())
             {

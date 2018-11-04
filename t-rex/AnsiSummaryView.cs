@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.CommandLine;
 using System.CommandLine.Rendering;
+using System.CommandLine.Rendering.Views;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Recipes;
@@ -10,18 +11,18 @@ using TRexLib;
 
 namespace TRex.CommandLine
 {
-    public class AnsiSummaryView : IConsoleView<TestResultSet>
+    public class AnsiSummaryView : ContentView<TestResultSet>
     {
         private readonly List<Span> _spans = new List<Span>();
 
         public bool HideTestOutput { get; }
 
-        public AnsiSummaryView(bool hideTestOutput)
+        public AnsiSummaryView(bool hideTestOutput, TestResultSet testResults) : base(testResults)
         {
             HideTestOutput = hideTestOutput;
         }
 
-        public async Task WriteAsync(IConsole console, TestResultSet testResults)
+        private async Task WriteAsync(IConsole console, TestResultSet testResults)
         {
             if (console == null)
             {
@@ -60,23 +61,23 @@ namespace TRex.CommandLine
             switch (outcome)
             {
                 case TestOutcome.Passed:
-                    color = ForegroundColorSpan.Green;
+                    color = ForegroundColorSpan.Green();
                     break;
                 case TestOutcome.Failed:
-                    color = ForegroundColorSpan.Red;
+                    color = ForegroundColorSpan.Red();
                     break;
                 case TestOutcome.NotExecuted:
                 case TestOutcome.Inconclusive:
                 case TestOutcome.Timeout:
                 case TestOutcome.Pending:
-                    color = ForegroundColorSpan.Yellow;
+                    color = ForegroundColorSpan.Yellow();
                     break;
                 default:
                     throw new ArgumentOutOfRangeException(nameof(outcome), outcome, null);
             }
 
             _spans.Add(color);
-            return Disposable.Create(() => _spans.Add(ForegroundColorSpan.Reset));
+            return Disposable.Create(() => _spans.Add(ForegroundColorSpan.Reset()));
         }
 
         private readonly SpanFormatter _spanFormatter = new SpanFormatter();
@@ -86,7 +87,7 @@ namespace TRex.CommandLine
             return _spanFormatter.Format(value);
         }
 
-        public async Task WriteResults(
+        private async Task WriteResults(
             IConsole console,
             IEnumerable<TestResult> results)
         {
@@ -94,25 +95,25 @@ namespace TRex.CommandLine
                             .GroupBy(result => result.Outcome)
                             .Select(
                                 byOutcome => new
-                                {
-                                    Outcome = byOutcome.Key,
-                                    Items = byOutcome
-                                            .GroupBy(result => result.Namespace)
-                                            .Select(
-                                                byNamespace =>
-                                                    new
-                                                    {
-                                                        Namespace = byNamespace.Key,
-                                                        Items = byNamespace
-                                                                .GroupBy(result => result.ClassName)
-                                                                .Select(
-                                                                    byClass => new
-                                                                    {
-                                                                        ClassName = byClass.Key,
-                                                                        Items = byClass.Select(g => g)
-                                                                    })
-                                                    })
-                                });
+                                             {
+                                                 Outcome = byOutcome.Key,
+                                                 Items = byOutcome
+                                                         .GroupBy(result => result.Namespace)
+                                                         .Select(
+                                                             byNamespace =>
+                                                                 new
+                                                                 {
+                                                                     Namespace = byNamespace.Key,
+                                                                     Items = byNamespace
+                                                                             .GroupBy(result => result.ClassName)
+                                                                             .Select(
+                                                                                 byClass => new
+                                                                                            {
+                                                                                                ClassName = byClass.Key,
+                                                                                                Items = byClass.Select(g => g)
+                                                                                            })
+                                                                 })
+                                             });
 
             foreach (var groupingByOutcome in groupings.OrderBy(t => t.Outcome))
             {
@@ -167,17 +168,17 @@ namespace TRex.CommandLine
                                     {
                                         _spans.Add(
                                             Format(
-                                                $"{ForegroundColorSpan.DarkGray}        {result.Output.Replace("\r\n", "\n").Replace("\n", "        \n")}{ForegroundColorSpan.Reset}"));
+                                                $"{ForegroundColorSpan.DarkGray()}        {result.Output.Replace("\r\n", "\n").Replace("\n", "        \n")}{ForegroundColorSpan.Reset()}"));
                                     }
 
                                     if (!string.IsNullOrWhiteSpace(result.Stacktrace))
                                     {
                                         _spans.Add(
                                             Format(
-                                                $"{ForegroundColorSpan.DarkGray}        Stack trace:"));
+                                                $"{ForegroundColorSpan.DarkGray()}        Stack trace:"));
                                         _spans.Add(
                                             Format(
-                                                $"{ForegroundColorSpan.DarkGray}        {result.Stacktrace.Replace("\r\n", "\n").Replace("\n", "          \n")}{ForegroundColorSpan.Reset}"));
+                                                $"{ForegroundColorSpan.DarkGray()}        {result.Stacktrace.Replace("\r\n", "\n").Replace("\n", "          \n")}{ForegroundColorSpan.Reset()}"));
                                     }
                                 }
                             }
@@ -186,12 +187,13 @@ namespace TRex.CommandLine
                 }
 
                 var renderer = new ConsoleRenderer(console, OutputMode.Ansi);
+
                 renderer.RenderToRegion(
                     new ContainerSpan(_spans.ToArray()),
                     new Region(0, Console.CursorTop, int.MaxValue, int.MaxValue, false));
             }
 
-            void WriteDuration(double? duration) => _spans.Add(Format($"{ForegroundColorSpan.DarkGray}({duration}s){ForegroundColorSpan.Reset}{Environment.NewLine}"));
+            void WriteDuration(double? duration) => _spans.Add(Format($"{ForegroundColorSpan.DarkGray()}({duration}s){ForegroundColorSpan.Reset()}{Environment.NewLine}"));
         }
     }
 }
