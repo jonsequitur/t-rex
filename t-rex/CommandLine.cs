@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.CommandLine;
 using System.CommandLine.Builder;
 using System.CommandLine.Invocation;
+using System.CommandLine.Rendering;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
@@ -20,14 +21,13 @@ namespace TRex.CommandLine
             var commandLine = new CommandLineBuilder()
                               
                               .UseParseDirective()
+                              .UseDebugDirective()
                               .UseSuggestDirective()
                               .UseParseErrorReporting()
                               .RegisterWithDotnetSuggest()
                               .UseExceptionHandler()
-
-
+                              
                               .UseHelp()
-
 
                               .AddOption("--file",
                                          ".trx file(s) to parse",
@@ -47,6 +47,12 @@ namespace TRex.CommandLine
                               .AddOption("--hide-test-output",
                                          "For failed tests, hide detailed test output. (Defaults to false.)",
                                          a => a.ParseArgumentsAs<bool>())
+                              .AddOption("--ansi-mode",
+                                         "Shows output formatted using ANSI sequences",
+                                         a => a.ParseArgumentsAs<bool>())
+                              .AddOption("--virtual-terminal-mode",
+                                         "Shows output formatted using ANSI sequences",
+                                         a => a.ParseArgumentsAs<bool>())
                               .AddVersionOption()
 
 
@@ -62,9 +68,16 @@ namespace TRex.CommandLine
             FileInfo[] file,
             DirectoryInfo[] path,
             string filter,
-            bool hideTestOutput,
+            bool ansiMode = false,
+            bool hideTestOutput = false,
+            bool virtualTerminalMode = false,
             IConsole console = null)
         {
+            if (virtualTerminalMode)
+            {
+                console.TryEnableVirtualTerminal();
+            }
+
             var allFiles = new List<FileInfo>();
 
             if (file != null && file.Any())
@@ -97,19 +110,31 @@ namespace TRex.CommandLine
                     resultSet.Where(r => regex.IsMatch(r.FullyQualifiedTestName)));
             }
 
-            IConsoleView<TestResultSet> view = null;
-
             switch (format)
             {
                 case OutputFormat.Summary:
-                    view = new SummaryView(hideTestOutput);
-                    break;
-                case OutputFormat.Json:
-                    view = new JsonView();
-                    break;
-            }
+                {
+                    if (!ansiMode)
+                    {
+                        var view = new SummaryView(hideTestOutput);
+                        await view.WriteAsync(console, resultSet);
+                    }
+                    else
+                    {
+                        var view = new AnsiSummaryView(hideTestOutput, resultSet);
+                        view.Render(new ConsoleRenderer(console), console.GetRegion());
+                    }
 
-            await view.WriteAsync(console, resultSet);
+                    break;
+                }
+
+                case OutputFormat.Json:
+                {
+                    var view = new JsonView();
+                    await view.WriteAsync(console, resultSet);
+                    break;
+                }
+            }
 
             if (resultSet.Failed.Any())
             {

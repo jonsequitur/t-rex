@@ -7,7 +7,6 @@ namespace TRexLib.Tests
 {
     public class TestConsole : IConsole
     {
-        private bool _isVirtualTerminalMode;
 
         public TestConsole()
         {
@@ -16,6 +15,8 @@ namespace TRexLib.Tests
         }
 
         public TextWriter Error { get; }
+
+        public ConsoleColor BackgroundColor { get; set; }
 
         public void SetOut(TextWriter writer)
         {
@@ -31,15 +32,13 @@ namespace TRexLib.Tests
             CursorTop = top;
         }
 
-        public bool IsVirtualTerminal()
-        {
-            return _isVirtualTerminalMode;
-        }
 
         public void TryEnableVirtualTerminal()
         {
-            _isVirtualTerminalMode = true;
+            IsVirtualTerminal = true;
         }
+
+        public bool IsVirtualTerminal { get; private set; }
 
         public TextWriter Out { get; private set; }
 
@@ -54,8 +53,6 @@ namespace TRexLib.Tests
         public bool IsErrorRedirected { get; private set; }
 
         public bool IsInputRedirected { get; private set; }
-
-        public int WindowWidth { get; set; } = 80;
 
         public virtual void ResetColor()
         {
