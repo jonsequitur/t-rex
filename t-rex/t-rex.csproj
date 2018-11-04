@@ -31,7 +31,7 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="System.CommandLine.Experimental" Version="0.1.0-alpha-63402-01" />
+    <PackageReference Include="System.CommandLine.Experimental" Version="0.1.0-alpha-63504-01" />
   </ItemGroup>
   
 </Project>
