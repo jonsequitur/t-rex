@@ -18,49 +18,36 @@ namespace TRex.CommandLine
 
         static CommandLine()
         {
-            var commandLine = new CommandLineBuilder()
-                              
-                              .UseParseDirective()
-                              .UseDebugDirective()
-                              .UseSuggestDirective()
-                              .UseParseErrorReporting()
-                              .RegisterWithDotnetSuggest()
-                              .UseExceptionHandler()
-                              
-                              .UseHelp()
+            var rootCommand = new RootCommand(description: "A command line testing tool for .NET")
+                              {
+                                  new Option("--file",
+                                             ".trx file(s) to parse",
+                                             new Argument<FileInfo[]>().ExistingFilesOnly()),
+                                  new Option("--filter",
+                                             "Only look at tests containing the specified text. \"*\" can be used as a wildcard.",
+                                             new Argument<string>()),
+                                  new Option("--format",
+                                             "The format for the output. (Summary, JSON)",
+                                             new Argument<OutputFormat>(OutputFormat.Summary)),
+                                  new Option("--path",
+                                             "Directory or directories to search for .trx files. Only the most recent .trx file in a given directory is used.",
+                                             new Argument<DirectoryInfo[]>(new[] { new DirectoryInfo(Directory.GetCurrentDirectory()) })),
+                                  new Option("--hide-test-output",
+                                             "For failed tests, hide detailed test output. (Defaults to false.)",
+                                             new Argument<bool>()),
+                                  new Option("--ansi-mode",
+                                             "Shows output formatted using ANSI sequences",
+                                             new Argument<bool>()),
+                                  new Option("--virtual-terminal-mode",
+                                             "Shows output formatted using ANSI sequences",
+                                             new Argument<bool>())
+                              };
 
-                              .AddOption("--file",
-                                         ".trx file(s) to parse",
-                                         a => a.ExistingFilesOnly()
-                                               .ParseArgumentsAs<FileInfo[]>())
-                              .AddOption("--filter",
-                                         "Only look at tests containing the specified text. \"*\" can be used as a wildcard.",
-                                         args => args.ExactlyOne())
-                              .AddOption("--format",
-                                         "The format for the output. (Summary, JSON)",
-                                         args => args.WithDefaultValue(() => OutputFormat.Summary)
-                                                     .ParseArgumentsAs<OutputFormat>())
-                              .AddOption("--path",
-                                         "Directory or directories to search for .trx files. Only the most recent .trx file in a given directory is used.",
-                                         a => a.WithDefaultValue(Directory.GetCurrentDirectory)
-                                               .ParseArgumentsAs<DirectoryInfo[]>())
-                              .AddOption("--hide-test-output",
-                                         "For failed tests, hide detailed test output. (Defaults to false.)",
-                                         a => a.ParseArgumentsAs<bool>())
-                              .AddOption("--ansi-mode",
-                                         "Shows output formatted using ANSI sequences",
-                                         a => a.ParseArgumentsAs<bool>())
-                              .AddOption("--virtual-terminal-mode",
-                                         "Shows output formatted using ANSI sequences",
-                                         a => a.ParseArgumentsAs<bool>())
-                              .AddVersionOption()
+            rootCommand.Handler = CommandHandler.Create(typeof(CommandLine).GetMethod(nameof(InvokeAsync)));
 
-
-                              .OnExecute(typeof(CommandLine).GetMethod(nameof(InvokeAsync)));
-
-            commandLine.Description = "A command line testing tool for .NET";
-
-            Parser = commandLine.Build();
+            Parser = new CommandLineBuilder(rootCommand)
+                     .UseDefaults()
+                     .Build();
         }
 
         public static async Task<int> InvokeAsync(
