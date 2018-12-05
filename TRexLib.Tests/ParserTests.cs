@@ -2,6 +2,7 @@ using System;
 using System.IO;
 using FluentAssertions;
 using System.Linq;
+using FluentAssertions.Extensions;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -26,7 +27,8 @@ namespace TRexLib.Tests
             results.Should().HaveCount(2);
 
             results.Select(r => r.FullyQualifiedTestName)
-                   .ShouldBeEquivalentTo(new[]
+                   .Should()
+                   .BeEquivalentTo(new[]
                    {
                        "Microsoft.DotNet.Cli.Sln.Internal.Tests.GivenAnSlnFile.WhenGivenAValidPathItReadsAnSlnFile",
                        "Microsoft.DotNet.Cli.Sln.Internal.Tests.GivenAnSlnFile.WhenGivenAValidPathItReadsModifiesThenWritesAnSln"
