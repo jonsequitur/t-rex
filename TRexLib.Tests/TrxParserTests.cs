@@ -8,11 +8,11 @@ using Xunit.Abstractions;
 
 namespace TRexLib.Tests
 {
-    public class ParserTests
+    public class TrxParserTests
     {
         private readonly ITestOutputHelper output;
 
-        public ParserTests(ITestOutputHelper output)
+        public TrxParserTests(ITestOutputHelper output)
         {
             this.output = output;
         }

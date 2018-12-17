@@ -10,12 +10,12 @@ using Xunit.Abstractions;
 
 namespace TRexLib.Tests
 {
-    public class CommandLineTests
+    public class DisplayLastTestResultReturnCodeTests
     {
         private readonly IConsole console = new TestConsole();
         private readonly ITestOutputHelper output;
 
-        public CommandLineTests(ITestOutputHelper output)
+        public DisplayLastTestResultReturnCodeTests(ITestOutputHelper output)
         {
             this.output = output;
         }
