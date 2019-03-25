@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.CommandLine;
 using System.CommandLine.Builder;
 using System.CommandLine.Invocation;
-using System.CommandLine.Rendering;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
@@ -12,7 +11,7 @@ using TRexLib;
 
 namespace TRex.CommandLine
 {
-    public class CommandLine
+    public static class CommandLine
     {
         public static Parser Parser { get; }
 
@@ -21,9 +20,9 @@ namespace TRex.CommandLine
             var rootCommand = new RootCommand(description: "A command line testing tool for .NET")
                               {
                                   new Option("--file",
-                                             ".trx file(s) to parse",
-                                             new Argument<FileInfo[]>().ExistingFilesOnly()),
-                                  new Option("--filter",
+                                          description:   ".trx file(s) to parse",
+                                          argument:   new Argument<FileInfo[]>().ExistingOnly()),
+                                  new Option(new[] { "-f", "--filter" },
                                              "Only look at tests containing the specified text. \"*\" can be used as a wildcard.",
                                              new Argument<string>()),
                                   new Option("--format",
@@ -32,7 +31,7 @@ namespace TRex.CommandLine
                                   new Option("--path",
                                              "Directory or directories to search for .trx files. Only the most recent .trx file in a given directory is used.",
                                              new Argument<DirectoryInfo[]>(new[] { new DirectoryInfo(Directory.GetCurrentDirectory()) })),
-                                  new Option("--hide-test-output",
+                                  new Option(new[] { "-d", "--hide-test-output" },
                                              "For failed tests, hide detailed test output. (Defaults to false.)",
                                              new Argument<bool>()),
                                   new Option("--ansi-mode",
@@ -43,28 +42,22 @@ namespace TRex.CommandLine
                                              new Argument<bool>())
                               };
 
-            rootCommand.Handler = CommandHandler.Create(typeof(CommandLine).GetMethod(nameof(InvokeAsync)));
+            rootCommand.Handler = CommandHandler.Create(typeof(CommandLine).GetMethod(nameof(DisplayResults)));
 
             Parser = new CommandLineBuilder(rootCommand)
                      .UseDefaults()
                      .Build();
         }
 
-        public static async Task<int> InvokeAsync(
+        public static async Task<int> DisplayResults(
             OutputFormat format,
             FileInfo[] file,
             DirectoryInfo[] path,
             string filter,
             bool ansiMode = false,
             bool hideTestOutput = false,
-            bool virtualTerminalMode = false,
             IConsole console = null)
         {
-            if (virtualTerminalMode)
-            {
-                console.TryEnableVirtualTerminal();
-            }
-
             var allFiles = new List<FileInfo>();
 
             if (file != null && file.Any())
@@ -101,16 +94,8 @@ namespace TRex.CommandLine
             {
                 case OutputFormat.Summary:
                 {
-                    if (!ansiMode)
-                    {
-                        var view = new SummaryView(hideTestOutput);
-                        await view.WriteAsync(console, resultSet);
-                    }
-                    else
-                    {
-                        var view = new AnsiSummaryView(hideTestOutput, resultSet);
-                        view.Render(new ConsoleRenderer(console), console.GetRegion());
-                    }
+                    var view = new SummaryView(hideTestOutput);
+                    await view.WriteAsync(console, resultSet);
 
                     break;
                 }

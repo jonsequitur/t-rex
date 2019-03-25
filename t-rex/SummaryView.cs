@@ -35,17 +35,17 @@ namespace TRex.CommandLine
 
             using (console.SetColorForOutcome(TestOutcome.Passed))
             {
-                await console.Out.WriteAsync($"Passed: {testResults.Passed.Count}, ");
+                console.Out.Write($"Passed: {testResults.Passed.Count}, ");
             }
 
             using (console.SetColorForOutcome(TestOutcome.Failed))
             {
-                await console.Out.WriteAsync($"Failed: {testResults.Failed.Count}, ");
+                console.Out.Write($"Failed: {testResults.Failed.Count}, ");
             }
 
             using (console.SetColorForOutcome(TestOutcome.NotExecuted))
             {
-                await console.Out.WriteLineAsync($"Not run: {testResults.NotExecuted.Count}");
+                console.Out.WriteLine($"Not run: {testResults.NotExecuted.Count}");
             }
         }
 
@@ -57,25 +57,25 @@ namespace TRex.CommandLine
                             .GroupBy(result => result.Outcome)
                             .Select(
                                 byOutcome => new
-                                {
-                                    Outcome = byOutcome.Key,
-                                    Items = byOutcome
-                                            .GroupBy(result => result.Namespace)
-                                            .Select(
-                                                byNamespace =>
-                                                    new
-                                                    {
-                                                        Namespace = byNamespace.Key,
-                                                        Items = byNamespace
-                                                                .GroupBy(result => result.ClassName)
-                                                                .Select(
-                                                                    byClass => new
-                                                                    {
-                                                                        ClassName = byClass.Key,
-                                                                        Items = byClass.Select(g => g)
-                                                                    })
-                                                    })
-                                });
+                                             {
+                                                 Outcome = byOutcome.Key,
+                                                 Items = byOutcome
+                                                         .GroupBy(result => result.Namespace)
+                                                         .Select(
+                                                             byNamespace =>
+                                                                 new
+                                                                 {
+                                                                     Namespace = byNamespace.Key,
+                                                                     Items = byNamespace
+                                                                             .GroupBy(result => result.ClassName)
+                                                                             .Select(
+                                                                                 byClass => new
+                                                                                            {
+                                                                                                ClassName = byClass.Key,
+                                                                                                Items = byClass.Select(g => g)
+                                                                                            })
+                                                                 })
+                                             });
 
             foreach (var groupingByOutcome in groupings.OrderBy(t => t.Outcome))
             {
@@ -90,9 +90,9 @@ namespace TRex.CommandLine
                                                 className.Items
                                                          .Sum(test => test.Duration?.TotalSeconds)));
 
-                    await console.Out.WriteAsync($"{groupingByOutcome.Outcome.ToString().ToUpper()}     ");
+                    console.Out.Write($"{groupingByOutcome.Outcome.ToString().ToUpper()}     ");
 
-                    await WriteDuration(durationForOutcome);
+                    WriteDuration(durationForOutcome);
 
                     foreach (var groupingByNamespace in groupingByOutcome.Items)
                     {
@@ -102,9 +102,9 @@ namespace TRex.CommandLine
                                 .Sum(className => className.Items
                                                            .Sum(test => test.Duration?.TotalSeconds));
 
-                        await console.Out.WriteAsync($"  {groupingByNamespace.Namespace}     ");
+                        console.Out.Write($"  {groupingByNamespace.Namespace}     ");
 
-                        await WriteDuration(durationForNamespace);
+                        WriteDuration(durationForNamespace);
 
                         foreach (var groupingByClassName in groupingByNamespace.Items)
                         {
@@ -112,16 +112,16 @@ namespace TRex.CommandLine
                                 groupingByClassName.Items
                                                    .Sum(className => className.Duration?.TotalSeconds);
 
-                            await console.Out.WriteAsync($"    {groupingByClassName.ClassName}     ");
+                            console.Out.Write($"    {groupingByClassName.ClassName}     ");
 
-                            await WriteDuration(durationForClass);
+                            WriteDuration(durationForClass);
 
                             foreach (var result in groupingByClassName.Items)
                             {
                                 var durationForTest = result.Duration.IfNotNull().Then(d => d.TotalSeconds).ElseDefault();
-                                await console.Out.WriteAsync($"      {result.TestName}     ");
+                                console.Out.Write($"      {result.TestName}     ");
 
-                                await WriteDuration(durationForTest);
+                                WriteDuration(durationForTest);
 
                                 if (!HideTestOutput &&
                                     groupingByOutcome.Outcome == TestOutcome.Failed)
@@ -130,7 +130,7 @@ namespace TRex.CommandLine
                                     {
                                         using (console.SetColor(System.ConsoleColor.Gray))
                                         {
-                                            await console.Out.WriteLineAsync($"        {result.Output.Replace("\r\n", "\n").Replace("\n", "        \n")}");
+                                            console.Out.WriteLine($"        {result.Output.Replace("\r\n", "\n").Replace("\n", "        \n")}");
                                         }
                                     }
 
@@ -138,12 +138,12 @@ namespace TRex.CommandLine
                                     {
                                         using (console.SetColor(System.ConsoleColor.DarkGray))
                                         {
-                                            await console.Out.WriteLineAsync($"        Stack trace:");
+                                            console.Out.WriteLine($"        Stack trace:");
                                         }
 
                                         using (console.SetColor(System.ConsoleColor.Gray))
                                         {
-                                            await console.Out.WriteLineAsync($"        {result.Stacktrace.Replace("\r\n", "\n").Replace("\n", "          \n")}");
+                                            console.Out.WriteLine($"        {result.Stacktrace.Replace("\r\n", "\n").Replace("\n", "          \n")}");
                                         }
                                     }
                                 }
@@ -152,14 +152,14 @@ namespace TRex.CommandLine
                     }
                 }
 
-                await console.Out.WriteLineAsync();
+                console.Out.WriteLine();
             }
 
-            async Task WriteDuration(double? duration)
+            void WriteDuration(double? duration)
             {
                 using (console.SetColor(System.ConsoleColor.Gray))
                 {
-                    await console.Out.WriteLineAsync($"({duration}s)");
+                    console.Out.WriteLine($"({duration}s)");
                 }
             }
         }
