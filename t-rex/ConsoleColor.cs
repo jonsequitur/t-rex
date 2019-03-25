@@ -1,25 +1,25 @@
 ﻿using System;
-using System.CommandLine;
+using System.CommandLine.Rendering;
 
 namespace TRex.CommandLine
 {
-    internal class ConsoleColor : IDisposable
+    internal class TerminalColor : IDisposable
     {
-        private readonly IConsole console;
-        private readonly System.ConsoleColor originalColor;
+        private readonly ITerminal terminal;
+        private readonly ConsoleColor originalColor;
 
-        public ConsoleColor(
-            IConsole console,
-            System.ConsoleColor foregroundColor)
+        public TerminalColor(
+            ITerminal terminal,
+            ConsoleColor foregroundColor)
         {
-            this.console = console;
-            originalColor = console.ForegroundColor;
-            console.ForegroundColor = foregroundColor;
+            this.terminal = terminal ?? throw new ArgumentNullException(nameof(terminal));
+            originalColor = terminal.ForegroundColor;
+            terminal.ForegroundColor = foregroundColor;
         }
 
         public void Dispose()
         {
-            console.ForegroundColor = originalColor;
+            terminal.ForegroundColor = originalColor;
         }
     }
 }

@@ -12,7 +12,7 @@ using Xunit.Abstractions;
 
 namespace TRexLib.Tests
 {
-    public class CommandLineTestDiscoveryTests
+    public class DisplayResultsDiscoveryTests
     {
         private readonly ITestOutputHelper output;
 
@@ -24,7 +24,7 @@ namespace TRexLib.Tests
             new DirectoryInfoJsonConverter()
         };
 
-        public CommandLineTestDiscoveryTests(ITestOutputHelper output)
+        public DisplayResultsDiscoveryTests(ITestOutputHelper output)
         {
             this.output = output;
         }

@@ -15,7 +15,7 @@ namespace TRex.CommandLine
                 new FileInfoJsonConverter(),
                 new DirectoryInfoJsonConverter());
 
-            await console.Out.WriteAsync(json);
+            console.Out.Write(json);
         }
     }
 }
