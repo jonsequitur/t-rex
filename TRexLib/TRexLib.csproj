@@ -4,10 +4,15 @@
     <ApplicationIcon />
     <StartupObject />
     <LangVersion>latest</LangVersion>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
     <OutputType>Library</OutputType>
+
+    <Title>A library for parsing trx files</Title>
+    <Description>With t-rex, you can explore the results of your most recent test run. It discovers, parses, and displays the contents of .trx files.</Description>
+    <Authors>jonsequitur</Authors>
+    <PackageTags>dotnet testing trx</PackageTags>
+    <RepositoryUrl>https://github.com/jonsequitur/t-rex</RepositoryUrl>
   </PropertyGroup>
+  
   <ItemGroup>
     <Compile Remove="TestResults\**" />
     <EmbeddedResource Remove="TestResults\**" />
