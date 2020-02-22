@@ -87,7 +87,7 @@ namespace TRex.CommandLine
             return _spanFormatter.Format(value);
         }
 
-        private async Task WriteResults(
+        private Task WriteResults(
             IConsole console,
             IEnumerable<TestResult> results)
         {
@@ -191,7 +191,10 @@ namespace TRex.CommandLine
                 renderer.RenderToRegion(
                     new ContainerSpan(_spans.ToArray()),
                     new Region(0, Console.CursorTop, int.MaxValue, int.MaxValue, false));
+
             }
+
+            return Task.CompletedTask;
 
             void WriteDuration(double? duration) => _spans.Add(Format($"{ForegroundColorSpan.DarkGray()}({duration}s){ForegroundColorSpan.Reset()}{Environment.NewLine}"));
         }

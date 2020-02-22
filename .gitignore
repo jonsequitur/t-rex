@@ -13,6 +13,7 @@ packages/
 instrumented/
 *.lnk
 TestResults/
+.ionide/
 _ReSharper.*/
 *.vsp
 buildlog.txt
