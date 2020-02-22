@@ -1,4 +1,4 @@
-image: Visual Studio 2017
+image: Visual Studio 2019
 artifacts:
   - path: '**\*.nupkg'
 
@@ -13,7 +13,7 @@ after_build:
   - cmd: >-
       dotnet pack .\t-rex\t-rex.csproj -c:release --no-build -p:Version=%APPVEYOR_BUILD_VERSION%
 
-      dotnet pack .\TRexLib\TRexLib.csproj -c:release --no-build -p:Version=%APPVEYOR_BUILD_VERSION%
+      dotnet pack .\TRexLib.nuget\TRexLib.nuget.csproj -c:release --no-build -p:Version=%APPVEYOR_BUILD_VERSION%
 
 test_script:
   - cmd: >-
