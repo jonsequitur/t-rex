@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 
 namespace TRexLib
@@ -49,5 +50,30 @@ namespace TRexLib
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
         public IEnumerator<TestResult> GetEnumerator() => evaluated.Value.all.GetEnumerator();
+        
+        public static TestResultSet Create(
+            IEnumerable<FileInfo> files)
+        {
+            var testResults = new List<TestResult>();
+
+            foreach (var file in files)
+            {
+                testResults.AddRange(file.Parse());
+            }
+
+            return new TestResultSet(testResults);
+        }
+
+        public static IEnumerable<FileInfo> FindTrxFiles(string path)
+        {
+            var allFiles = new DirectoryInfo(path)
+                           .GetFiles("*.trx", SearchOption.AllDirectories)
+                           .GroupBy(f => f.Directory.FullName);
+
+            foreach (var folder in allFiles)
+            {
+                yield return folder.OrderBy(f => f.LastWriteTime).Last();
+            }
+        }
     }
 }

@@ -7,7 +7,7 @@ namespace TRex.CommandLine
 {
     public class JsonView : IConsoleView<TestResultSet>
     {
-        public async Task WriteAsync(IConsole console, TestResultSet testResults)
+        public Task WriteAsync(IConsole console, TestResultSet testResults)
         {
             var json = JsonConvert.SerializeObject(
                 testResults,
@@ -16,6 +16,8 @@ namespace TRex.CommandLine
                 new DirectoryInfoJsonConverter());
 
             console.Out.Write(json);
+
+            return Task.CompletedTask;
         }
     }
 }

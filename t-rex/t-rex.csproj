@@ -1,8 +1,8 @@
-﻿<Project Sdk="Microsoft.NET.Sdk" ToolsVersion="15.0">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <OutputType>exe</OutputType>
-    <TargetFramework>netcoreapp2.1</TargetFramework>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
     <RootNamespace>TRex.CommandLine</RootNamespace>
     <ToolCommandName>t-rex</ToolCommandName>
     <PackAsTool>true</PackAsTool>
@@ -31,8 +31,8 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="System.CommandLine.Experimental" Version="0.2.0-alpha.19174.3" />
-    <PackageReference Include="system.commandline.rendering" Version="0.2.0-alpha.19174.3" />
+    <PackageReference Include="System.CommandLine" Version="2.0.0-beta1.20120.1" />
+    <PackageReference Include="system.commandline.rendering" Version="2.0.0-beta1.20074.1" />
   </ItemGroup>
   
 </Project>

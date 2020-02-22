@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.CommandLine;
+using System.CommandLine.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Recipes;
@@ -49,7 +50,7 @@ namespace TRex.CommandLine
             }
         }
 
-        public async Task WriteResults(
+        public Task WriteResults(
             IConsole console,
             IEnumerable<TestResult> results)
         {
@@ -154,6 +155,8 @@ namespace TRex.CommandLine
 
                 console.Out.WriteLine();
             }
+
+            return Task.CompletedTask;
 
             void WriteDuration(double? duration)
             {

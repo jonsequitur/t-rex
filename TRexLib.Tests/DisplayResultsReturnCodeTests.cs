@@ -1,6 +1,7 @@
 using System;
 using System.CommandLine;
-using System.CommandLine.Invocation;
+using System.CommandLine.IO;
+using System.CommandLine.Parsing;
 using System.IO;
 using System.Threading.Tasks;
 using FluentAssertions;
@@ -53,7 +54,7 @@ namespace TRexLib.Tests
 
             output.WriteLine($"result: {result}");
 
-            var exitCode = await parser.InvokeAsync(result, console);
+            var exitCode = await result.InvokeAsync(console);
 
             output.WriteLine("Out:");
             output.WriteLine(console.Out.ToString());
