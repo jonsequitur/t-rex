@@ -32,7 +32,7 @@ namespace TRex.CommandLine
 
             await WriteResults(console, testResults);
 
-            console.Out.WriteLine($"SUMMARY:");
+            console.Out.WriteLine("SUMMARY:");
 
             using (console.SetColorForOutcome(TestOutcome.Passed))
             {

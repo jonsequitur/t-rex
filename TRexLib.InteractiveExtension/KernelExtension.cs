@@ -22,15 +22,20 @@ namespace TRexLib.InteractiveExtension
 
             if (kernel is KernelBase kernelBase)
             {
-                kernelBase.AddDirective(TestCommand());
+                var trex = new Command("#!t-rex", "Run unit tests from a notebook.")
+                {
+                    RunCommand(),
+                    ShowCommand()
+                };
+                kernelBase.AddDirective(trex);
             }
 
             return Task.CompletedTask;
         }
 
-        private static Command TestCommand()
+        private static Command RunCommand()
         {
-            var testCommand = new Command("#!test", "Runs unit tests using dotnet test")
+            var runTestsCommand = new Command("run", "Runs unit tests using dotnet test")
             {
                 new Argument<FileSystemInfo>("project", getDefaultValue: () => new DirectoryInfo(Directory.GetCurrentDirectory()))
                 {
@@ -38,29 +43,58 @@ namespace TRexLib.InteractiveExtension
                 }.ExistingOnly()
             };
 
-            testCommand.Handler = CommandHandler.Create<FileSystemInfo, KernelInvocationContext>(async (project, context) =>
+            runTestsCommand.Handler = CommandHandler.Create<FileSystemInfo, KernelInvocationContext>(RunTests);
+
+            return runTestsCommand;
+        }
+
+        private static Command ShowCommand()
+        {
+            var showTestsCommand = new Command("show", "Show the results of the latest test run")
             {
-                var dotnet = new Dotnet();
-
-                var result = await dotnet.Execute($"test -l:trx \"{project.FullName}\"");
-
-                result.ThrowOnFailure();
-
-                var dir = project switch
+                new Argument<DirectoryInfo>("dir", getDefaultValue: () => new DirectoryInfo(Directory.GetCurrentDirectory()))
                 {
-                    DirectoryInfo directoryInfo => directoryInfo,
-                    FileInfo fileInfo => fileInfo.Directory,
-                    _ => throw new ArgumentOutOfRangeException(nameof(project))
-                };
+                    Description = "The directory under which to search for .trx files"
+                }.ExistingOnly()
+            };
 
-                var trxFiles = TestResultSet.FindTrxFiles(dir.FullName);
+            showTestsCommand.Handler = CommandHandler.Create<DirectoryInfo, KernelInvocationContext>(ShowTests);
 
-                var results = TestResultSet.Create(trxFiles);
+            return showTestsCommand;
+        }
 
-                await context.DisplayAsync(results);
-            });
+        private static async Task RunTests(FileSystemInfo project, KernelInvocationContext context)
+        {
+            var dotnet = new Dotnet();
 
-            return testCommand;
+            var result = await dotnet.StartProcess(
+                                         $"test -l:trx \"{project.FullName}\"",
+                                         output => context.PublishStandardOut(output + "\n", context.Command),
+                                         error => context.PublishStandardError(error + "\n", context.Command))
+                                     .CompleteAsync();
+
+            if (result != 0)
+            {
+                return;
+            }
+
+            var dir = project switch
+            {
+                DirectoryInfo directoryInfo => directoryInfo,
+                FileInfo fileInfo => fileInfo.Directory,
+                _ => throw new ArgumentOutOfRangeException(nameof(project))
+            };
+
+            await ShowTests(dir, context);
+        }
+
+        private static async Task ShowTests(DirectoryInfo dir, KernelInvocationContext context)
+        {
+            var trxFiles = TestResultSet.FindTrxFiles(dir.FullName);
+
+            var results = TestResultSet.Create(trxFiles);
+
+            await context.DisplayAsync(results);
         }
 
         private void RegisterFormatters()
