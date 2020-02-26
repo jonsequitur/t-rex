@@ -21,9 +21,9 @@
 
   <ItemGroup>
     <None 
-      Include="../TRexLib/bin/$(Configuration)/$(TargetFramework)/*.dll" 
+      Include="../TRexLib/bin/$(Configuration)/netstandard2.0/*.dll" 
       Pack="true" 
-      PackagePath="lib/$(TargetFramework)" />
+      PackagePath="lib/netstandard2.0" />
     <None 
       Include="../TRexLib.InteractiveExtension/bin/$(Configuration)/$(TargetFramework)/TRexLib.InteractiveExtension.dll" 
       Exclude="../TRexLib.InteractiveExtension/bin/$(Configuration)/$(TargetFramework)/TRexLib.dll"
