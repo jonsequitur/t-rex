@@ -67,11 +67,16 @@ namespace TRexLib.InteractiveExtension
         {
             var dotnet = new Dotnet();
 
-            await dotnet.StartProcess(
-                            $"test -l:trx \"{project.FullName}\"",
-                            output => context.PublishStandardOut(output + "\n", context.Command),
-                            error => context.PublishStandardError(error + "\n", context.Command))
-                        .CompleteAsync();
+            var result = await dotnet.StartProcess(
+                                         $"test -l:trx \"{project.FullName}\"",
+                                         output => context.DisplayStandardOut(output + "\n"),
+                                         error => context.DisplayStandardError(error + "\n"))
+                                     .CompleteAsync();
+
+            if (result != 0)
+            {
+                return;
+            }
 
             var dir = project switch
             {

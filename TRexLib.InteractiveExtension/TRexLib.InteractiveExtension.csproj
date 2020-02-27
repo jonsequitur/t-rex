@@ -6,8 +6,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="microsoft.dotnet.interactive" Version="1.0.0-beta.20121.20" />
-    <PackageReference Include="microsoft.dotnet.interactive.formatting" Version="1.0.0-beta.20121.20" />
+    <PackageReference Include="microsoft.dotnet.interactive" Version="1.0.0-beta.20127.1" />
+    <PackageReference Include="microsoft.dotnet.interactive.formatting" Version="1.0.0-beta.20127.1" />
     <PackageReference Include="xplot.plotly" Version="3.0.1" />
   </ItemGroup>
 
