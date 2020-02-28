@@ -73,11 +73,6 @@ namespace TRexLib.InteractiveExtension
                                          error => context.DisplayStandardError(error + "\n"))
                                      .CompleteAsync();
 
-            if (result != 0)
-            {
-                return;
-            }
-
             var dir = project switch
             {
                 DirectoryInfo directoryInfo => directoryInfo,
