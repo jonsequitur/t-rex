@@ -127,12 +127,12 @@ namespace TRexLib.InteractiveExtension
 
                 IHtmlContent view = div(
                     div(chart.GetHtmlContent()),
-                    table(
+                    table[style: "width=100%"](
                         thead(
                             tr(
-                                th("Test"),
-                                th("Result"),
-                                th("Duration"))),
+                                th[style: "text-align:left;width=70%"]("Test"),
+                                th[style: "width=15%"]("Result"),
+                                th[style: "width=15%"]("Duration"))),
                         tbody(
                             set.OrderBy(r => r.Outcome switch
                                {
@@ -142,10 +142,23 @@ namespace TRexLib.InteractiveExtension
                                })
                                .ThenBy(r => r.FullyQualifiedTestName)
                                .Select(result =>
-                                           tr[style: OutcomeStyle(result.Outcome)](
-                                               td[style: "text-align:left"](result.FullyQualifiedTestName),
-                                               td(result.Outcome.ToString()),
-                                               td(result.Duration?.TotalSeconds + "s"))))));
+                               {
+                                   // allow line breaks at periods if wrapping is needed
+                                   var testName = Kernel.HTML(result.FullyQualifiedTestName.Replace(".", "&#8203."));
+
+                                   var content = 
+                                       result.Outcome == TestOutcome.Failed
+                                       ? div(testName, br, pre[style:"padding-left:2em"](result.Output))
+                                       : testName;
+
+                                   return tr[style: OutcomeStyle(result.Outcome)](
+                                       td[style: "text-align:left;width=75%"](
+                                           content),
+                                       td[style: "width=15%"](
+                                           result.Outcome.ToString()),
+                                       td[style: "width=15%"](
+                                           result.Duration?.TotalSeconds + "s"));
+                               }))));
 
                 view.WriteTo(writer, HtmlEncoder.Default);
             }, HtmlFormatter.MimeType);
