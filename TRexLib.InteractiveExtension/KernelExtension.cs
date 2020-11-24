@@ -16,11 +16,11 @@ namespace TRexLib.InteractiveExtension
 {
     public class KernelExtension : IKernelExtension
     {
-        public Task OnLoadAsync(IKernel kernel)
+        public Task OnLoadAsync(Kernel kernel)
         {
             RegisterFormatters();
 
-            if (kernel is KernelBase kernelBase)
+            if (kernel is { } kernelBase)
             {
                 var trex = new Command("#!t-rex", "Run unit tests from a notebook.")
                 {
@@ -67,11 +67,11 @@ namespace TRexLib.InteractiveExtension
         {
             var dotnet = new Dotnet();
 
-            var result = await dotnet.StartProcess(
-                                         $"test -l:trx \"{project.FullName}\"",
-                                         output => context.DisplayStandardOut(output + "\n"),
-                                         error => context.DisplayStandardError(error + "\n"))
-                                     .CompleteAsync();
+            await dotnet.StartProcess(
+                            $"test -l:trx \"{project.FullName}\"",
+                            output => context.DisplayStandardOut(output + "\n"),
+                            error => context.DisplayStandardError(error + "\n"))
+                        .CompleteAsync();
 
             var dir = project switch
             {
@@ -80,21 +80,21 @@ namespace TRexLib.InteractiveExtension
                 _ => throw new ArgumentOutOfRangeException(nameof(project))
             };
 
-            await ShowTests(dir, context);
+            ShowTests(dir, context);
         }
 
-        private static async Task ShowTests(DirectoryInfo dir, KernelInvocationContext context)
+        private static void ShowTests(DirectoryInfo dir, KernelInvocationContext context)
         {
             var trxFiles = TestResultSet.FindTrxFiles(dir.FullName);
 
             var results = TestResultSet.Create(trxFiles);
 
-            await context.DisplayAsync(results);
+            context.Display(results);
         }
 
         private void RegisterFormatters()
         {
-            Formatter<TestResultSet>.Register((set, writer) =>
+            Formatter.Register<TestResultSet>((set, writer) =>
             {
                 var pieChart = new Graph.Pie
                 {
@@ -148,8 +148,8 @@ namespace TRexLib.InteractiveExtension
 
                                    var content = 
                                        result.Outcome == TestOutcome.Failed
-                                       ? div(testName, br, pre[style:"padding-left:2em"](result.Output))
-                                       : testName;
+                                           ? div(testName, br, pre[style:"padding-left:2em"](result.Output))
+                                           : testName;
 
                                    return tr[style: OutcomeStyle(result.Outcome)](
                                        td[style: "text-align:left;width=75%"](

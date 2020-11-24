@@ -13,7 +13,7 @@ namespace TRex.CommandLine
 {
     public class AnsiSummaryView : ContentView<TestResultSet>
     {
-        private readonly List<Span> _spans = new List<Span>();
+        private readonly List<TextSpan> _spans = new List<TextSpan>();
 
         public bool HideTestOutput { get; }
 
@@ -80,9 +80,9 @@ namespace TRex.CommandLine
             return Disposable.Create(() => _spans.Add(ForegroundColorSpan.Reset()));
         }
 
-        private readonly SpanFormatter _spanFormatter = new SpanFormatter();
+        private readonly TextSpanFormatter _spanFormatter = new TextSpanFormatter();
 
-        private Span Format(FormattableString value)
+        private TextSpan Format(FormattableString value)
         {
             return _spanFormatter.Format(value);
         }

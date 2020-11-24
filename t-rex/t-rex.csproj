@@ -27,12 +27,12 @@
 
   <ItemGroup>
     <PackageReference Include="newtonsoft.json" Version="11.0.2" />
-    <PackageReference Include="pocket.disposable" Version="1.0.5">
+    <PackageReference Include="pocket.disposable" Version="1.1.0">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="System.CommandLine" Version="2.0.0-beta1.20120.1" />
-    <PackageReference Include="system.commandline.rendering" Version="2.0.0-beta1.20074.1" />
+    <PackageReference Include="System.CommandLine" Version="2.0.0-beta1.20513.2" />
+    <PackageReference Include="system.commandline.rendering" Version="0.3.0-alpha.20513.2" />
   </ItemGroup>
   
 </Project>
