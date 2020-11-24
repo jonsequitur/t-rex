@@ -33,7 +33,7 @@ namespace TRex.CommandLine
             {
                 using var _ = console.SetColorForOutcome(result.Outcome);
 
-                console.Out.WriteLine($"{result.StartTime:s}: {result.Namespace}.{result.ClassName}.{result.TestName}");
+                console.Out.WriteLine($"{result.StartTime:s}: {result.Namespace}.{result.ClassName}.{result.TestName} ({result.Outcome}: {result.Duration.Value.TotalMilliseconds:F2}ms)");
             }
 
             console.Out.WriteLine();
