@@ -32,7 +32,7 @@ namespace TRexLib.Tests
         }
 
         [Fact]
-        public async Task When_no_files_are_specified_are_given_then_files_are_discovered_recursively()
+        public async Task When_no_files_are_specified_then_files_are_discovered_recursively()
         {
             await CommandLine.Parser.InvokeAsync("--format json", console);
 

@@ -2,7 +2,10 @@
 {
     public enum OutputFormat
     {
-        Summary,
-        Json
+        Hierarchical,
+        Json,
+        OrderByStartTime,
+        OrderByEndTime,
+        OrderByDuration
     }
 }

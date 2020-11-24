@@ -1,7 +1,5 @@
 using System;
 using System.CommandLine;
-using System.CommandLine.Rendering;
-using Pocket;
 using TRexLib;
 
 namespace TRex.CommandLine
@@ -10,33 +8,23 @@ namespace TRex.CommandLine
     {
         public static IDisposable SetColor(this IConsole console, ConsoleColor color)
         {
-            if (!(console is ITerminal terminal))
-            {
-                return Disposable.Empty;
-            }
-
-            return new TerminalColor(terminal, color);
+            return new OutputColor(color);
         }
 
         public static IDisposable SetColorForOutcome(this IConsole console, TestOutcome outcome)
         {
-            if (!(console is ITerminal terminal))
-            {
-                return Disposable.Empty;
-            }
-
             switch (outcome)
             {
                 case TestOutcome.NotExecuted:
                 case TestOutcome.Inconclusive:
                 case TestOutcome.Pending:
-                    return new TerminalColor(terminal, ConsoleColor.Yellow);
+                    return new OutputColor(ConsoleColor.Yellow);
                 case TestOutcome.Failed:
-                    return new TerminalColor(terminal, ConsoleColor.Red);
+                    return new OutputColor(ConsoleColor.Red);
                 case TestOutcome.Passed:
-                    return new TerminalColor(terminal, ConsoleColor.Green);
+                    return new OutputColor(ConsoleColor.Green);
                 case TestOutcome.Timeout:
-                    return new TerminalColor(terminal, ConsoleColor.Magenta);
+                    return new OutputColor(ConsoleColor.Magenta);
 
                 default:
                     throw new NotSupportedException();
