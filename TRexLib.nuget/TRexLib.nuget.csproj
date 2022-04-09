@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <OutputType>Library</OutputType>
-    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <TargetFramework>net6.0</TargetFramework>
     <IncludeBuildOutput>false</IncludeBuildOutput>
 
     <PackageId>TRexLib</PackageId>
@@ -21,9 +21,9 @@
 
   <ItemGroup>
     <None 
-      Include="../TRexLib/bin/$(Configuration)/netstandard2.0/*.dll" 
+      Include="../TRexLib/bin/$(Configuration)/net6.0/*.dll" 
       Pack="true" 
-      PackagePath="lib/netstandard2.0" />
+      PackagePath="lib/net6.0" />
     <None 
       Include="../TRexLib.InteractiveExtension/bin/$(Configuration)/$(TargetFramework)/TRexLib.InteractiveExtension.dll" 
       Exclude="../TRexLib.InteractiveExtension/bin/$(Configuration)/$(TargetFramework)/TRexLib.dll"
