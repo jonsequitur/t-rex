@@ -2,9 +2,7 @@
 using System.Collections.Generic;
 using System.CommandLine;
 using System.CommandLine.Builder;
-using System.CommandLine.Invocation;
 using System.CommandLine.Parsing;
-using System.CommandLine.Rendering;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
@@ -19,32 +17,54 @@ namespace TRex.CommandLine
 
         static CommandLine()
         {
+            var fileOption = new Option<FileInfo[]>("--file", ".trx file(s) to parse")
+                .ExistingOnly();
+
+            var filterOption = new Option<string>(new[] { "-f", "--filter" },
+                                                  "Only look at tests containing the specified text. \"*\" can be used as a wildcard.");
+
+            var formatOption = new Option<OutputFormat>("--format",
+                                                        description: "The format for the output.",
+                                                        getDefaultValue: () => OutputFormat.Hierarchical);
+
+            var pathOption = new Option<DirectoryInfo[]>("--path",
+                                                         description:
+                                                         "Directory or directories to search for .trx files. Only the most recent .trx file in a given directory is used.",
+                                                         getDefaultValue: () => new[] { new DirectoryInfo(Directory.GetCurrentDirectory()) });
+
+            var hideTestOutputOption = new Option<bool>(new[] { "-d", "--hide-test-output" },
+                                                        "For failed tests, hide detailed test output.");
             var rootCommand = new RootCommand("A command line testing tool for .NET")
             {
-                new Option<FileInfo[]>("--file", ".trx file(s) to parse")
-                    .ExistingOnly(),
-
-                new Option<string>(new[] { "-f", "--filter" },
-                                   "Only look at tests containing the specified text. \"*\" can be used as a wildcard."),
-
-                new Option<OutputFormat>("--format",
-                                         description: "The format for the output.",
-                                         getDefaultValue: () => OutputFormat.Hierarchical),
-
-                new Option<DirectoryInfo[]>("--path",
-                                            description: "Directory or directories to search for .trx files. Only the most recent .trx file in a given directory is used.",
-                                            getDefaultValue: () => new[] { new DirectoryInfo(Directory.GetCurrentDirectory()) }),
-
-                new Option<bool>(new[] { "-d", "--hide-test-output" },
-                                 "For failed tests, hide detailed test output.")
+                fileOption,
+                filterOption,
+                formatOption,
+                pathOption,
+                hideTestOutputOption
             };
 
-            rootCommand.Handler = CommandHandler.Create(typeof(CommandLine).GetMethod(nameof(DisplayResults)));
+            rootCommand.SetHandler(
+                (Func<OutputFormat, FileInfo[], DirectoryInfo[], string, bool, IConsole, Task<int>>)Run,
+                formatOption,
+                fileOption,
+                pathOption,
+                filterOption,
+                hideTestOutputOption);
 
             Parser = new CommandLineBuilder(rootCommand)
                      .UseDefaults()
-                     .UseAnsiTerminalWhenAvailable()
                      .Build();
+
+            async Task<int> Run(
+                OutputFormat format, 
+                FileInfo[] file, 
+                DirectoryInfo[] path, 
+                string filter, 
+                bool hideTestOutput, 
+                IConsole console)
+            {
+                return await DisplayResults(format, file, path, filter, hideTestOutput, console);
+            }
         }
 
         public static async Task<int> DisplayResults(
@@ -52,8 +72,8 @@ namespace TRex.CommandLine
             FileInfo[] file,
             DirectoryInfo[] path,
             string filter,
-            bool hideTestOutput = false,
-            IConsole console = null)
+            bool hideTestOutput,
+            IConsole console)
         {
             var allFiles = new List<FileInfo>();
 

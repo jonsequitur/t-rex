@@ -35,30 +35,34 @@ namespace TRexLib.InteractiveExtension
 
         private static Command RunCommand()
         {
+            var projectArg = new Argument<FileSystemInfo>("project", getDefaultValue: () => new DirectoryInfo(Directory.GetCurrentDirectory()))
+            {
+                Description = "The project or solution file to operate on. If a file is not specified, the command will search the current directory for one."
+            }.ExistingOnly();
+
             var runTestsCommand = new Command("run", "Runs unit tests using dotnet test")
             {
-                new Argument<FileSystemInfo>("project", getDefaultValue: () => new DirectoryInfo(Directory.GetCurrentDirectory()))
-                {
-                    Description = "The project or solution file to operate on. If a file is not specified, the command will search the current directory for one."
-                }.ExistingOnly()
+                projectArg
             };
 
-            runTestsCommand.Handler = CommandHandler.Create<FileSystemInfo, KernelInvocationContext>(RunTests);
+            runTestsCommand.SetHandler<FileSystemInfo, KernelInvocationContext>(RunTests, projectArg);
 
             return runTestsCommand;
         }
 
         private static Command ShowCommand()
         {
+            var dirArg = new Argument<DirectoryInfo>("dir", getDefaultValue: () => new DirectoryInfo(Directory.GetCurrentDirectory()))
+            {
+                Description = "The directory under which to search for .trx files"
+            }.ExistingOnly();
+
             var showTestsCommand = new Command("show", "Show the results of the latest test run")
             {
-                new Argument<DirectoryInfo>("dir", getDefaultValue: () => new DirectoryInfo(Directory.GetCurrentDirectory()))
-                {
-                    Description = "The directory under which to search for .trx files"
-                }.ExistingOnly()
+                dirArg
             };
 
-            showTestsCommand.Handler = CommandHandler.Create<DirectoryInfo, KernelInvocationContext>(ShowTests);
+            showTestsCommand.SetHandler<DirectoryInfo, KernelInvocationContext>(ShowTests, dirArg);
 
             return showTestsCommand;
         }
@@ -67,11 +71,12 @@ namespace TRexLib.InteractiveExtension
         {
             var dotnet = new Dotnet();
 
-            await dotnet.StartProcess(
-                            $"test -l:trx \"{project.FullName}\"",
-                            output => context.DisplayStandardOut(output + "\n"),
-                            error => context.DisplayStandardError(error + "\n"))
-                        .CompleteAsync();
+            var process = dotnet.StartProcess(
+                $"test -l:trx \"{project.FullName}\"",
+                output => context.DisplayStandardOut(output + "\n"),
+                error => context.DisplayStandardError(error + "\n"));
+
+            await process.WaitForExitAsync();
 
             var dir = project switch
             {
@@ -96,7 +101,7 @@ namespace TRexLib.InteractiveExtension
         {
             Formatter.Register<TestResultSet>((set, writer) =>
             {
-                var pieChart = new Graph.Pie
+                var pieChart = new Pie
                 {
                     values = new[]
                     {
@@ -110,7 +115,7 @@ namespace TRexLib.InteractiveExtension
                         "Failed",
                         "Skipped"
                     },
-                    marker = new Graph.Marker
+                    marker = new Marker
                     {
                         colors = new[]
                         {
