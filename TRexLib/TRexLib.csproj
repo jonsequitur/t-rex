@@ -6,7 +6,7 @@
     <LangVersion>latest</LangVersion>
     <OutputType>Library</OutputType>
 
-    <Title>A library for parsing trx files</Title>
+    <Title>A library for parsing .trx files</Title>
     <Description>With t-rex, you can explore the results of your most recent test run. It discovers, parses, and displays the contents of .trx files.</Description>
     <Authors>jonsequitur</Authors>
     <PackageTags>dotnet testing trx</PackageTags>
@@ -17,9 +17,5 @@
     <Compile Remove="TestResults\**" />
     <EmbeddedResource Remove="TestResults\**" />
     <None Remove="TestResults\**" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <PackageReference Include="Microsoft.CSharp" Version="5.0.0-alpha1.19523.8" />
   </ItemGroup>
 </Project>

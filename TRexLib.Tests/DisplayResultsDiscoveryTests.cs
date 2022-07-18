@@ -1,6 +1,5 @@
 using System;
 using System.CommandLine;
-using System.CommandLine.Invocation;
 using System.CommandLine.IO;
 using System.CommandLine.Parsing;
 using System.IO;
@@ -68,6 +67,19 @@ namespace TRexLib.Tests
 
             var results = JsonConvert.DeserializeObject<TestResultSet>(console.Out.ToString(), converters);
             results.Should().HaveCount(18);
+        }
+
+        [Fact]
+        public async Task When_multiple_TRX_files_exist_in_the_directory_all_are_read_when_all_flag_is_passed()
+        {
+            var directoryPath = new DirectoryInfo(Path.Combine("TRXs", "2")).FullName;
+
+            await CommandLine.Parser.InvokeAsync($"--path \"{directoryPath}\" --format json --all", console);
+
+            output.WriteLine(console.Out.ToString());
+
+            var results = JsonConvert.DeserializeObject<TestResultSet>(console.Out.ToString(), converters);
+            results.Count.Should().Be(36);
         }
 
         [Fact]
