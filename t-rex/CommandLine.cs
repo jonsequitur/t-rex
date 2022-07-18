@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.CommandLine;
 using System.CommandLine.Builder;
 using System.CommandLine.Parsing;
@@ -17,53 +16,71 @@ namespace TRex.CommandLine
 
         static CommandLine()
         {
-            var fileOption = new Option<FileInfo[]>("--file", ".trx file(s) to parse")
+            var fileOption = new Option<FileInfo[]>(
+                    "--file", ".trx file(s) to parse")
                 .ExistingOnly();
 
-            var filterOption = new Option<string>(new[] { "-f", "--filter" },
-                                                  "Only look at tests containing the specified text. \"*\" can be used as a wildcard.");
+            var filterOption = new Option<string>(
+                new[] { "-f", "--filter" },
+                "Only look at tests containing the specified text. \"*\" can be used as a wildcard.");
 
-            var formatOption = new Option<OutputFormat>("--format",
-                                                        description: "The format for the output.",
-                                                        getDefaultValue: () => OutputFormat.Hierarchical);
+            var formatOption = new Option<OutputFormat>(
+                "--format",
+                description: "The format for the output.",
+                getDefaultValue: () => OutputFormat.Hierarchical);
 
-            var pathOption = new Option<DirectoryInfo[]>("--path",
-                                                         description:
-                                                         "Directory or directories to search for .trx files. Only the most recent .trx file in a given directory is used.",
-                                                         getDefaultValue: () => new[] { new DirectoryInfo(Directory.GetCurrentDirectory()) });
+            var pathOption = new Option<DirectoryInfo[]>(
+                "--path",
+                description:
+                "Directory or directories to search for .trx files. Only the most recent .trx file in a given directory is used.",
+                getDefaultValue: () => new[] { new DirectoryInfo(Directory.GetCurrentDirectory()) });
 
-            var hideTestOutputOption = new Option<bool>(new[] { "-d", "--hide-test-output" },
-                                                        "For failed tests, hide detailed test output.");
+            var hideTestOutputOption = new Option<bool>(
+                new[]
+                {
+                    "-d",
+                    "--hide-test-output"
+                },
+                "For failed tests, hide detailed test output.");
+
+            var allOption = new Option<bool>(
+                "--all",
+                "Show tests results for all test runs. By default, only the latest test run is shown.");
+
             var rootCommand = new RootCommand("A command line testing tool for .NET")
             {
                 fileOption,
                 filterOption,
                 formatOption,
                 pathOption,
-                hideTestOutputOption
+                hideTestOutputOption,
+                allOption,
             };
 
             rootCommand.SetHandler(
-                (Func<OutputFormat, FileInfo[], DirectoryInfo[], string, bool, IConsole, Task<int>>)Run,
+                Run,
                 formatOption,
                 fileOption,
                 pathOption,
                 filterOption,
-                hideTestOutputOption);
+                hideTestOutputOption,
+                allOption,
+                Bind.FromServiceProvider<IConsole>());
 
             Parser = new CommandLineBuilder(rootCommand)
                      .UseDefaults()
                      .Build();
 
             async Task<int> Run(
-                OutputFormat format, 
-                FileInfo[] file, 
-                DirectoryInfo[] path, 
-                string filter, 
-                bool hideTestOutput, 
+                OutputFormat format,
+                FileInfo[] file,
+                DirectoryInfo[] path,
+                string filter,
+                bool hideTestOutput,
+                bool showAllResults,
                 IConsole console)
             {
-                return await DisplayResults(format, file, path, filter, hideTestOutput, console);
+                return await DisplayResults(format, file, path, filter, hideTestOutput, showAllResults, console);
             }
         }
 
@@ -73,11 +90,12 @@ namespace TRex.CommandLine
             DirectoryInfo[] path,
             string filter,
             bool hideTestOutput,
+            bool showAllResults,
             IConsole console)
         {
             var allFiles = new List<FileInfo>();
 
-            if (file != null && file.Any())
+            if (file is { } && file.Any())
             {
                 foreach (var fileInfo in file.Where(f => f.Exists))
                 {
@@ -90,7 +108,7 @@ namespace TRex.CommandLine
                 {
                     if (directoryInfo.Exists)
                     {
-                        allFiles.AddRange(TestResultSet.FindTrxFiles(directoryInfo.FullName));
+                        allFiles.AddRange(TestResultSet.FindTrxFiles(directoryInfo.FullName, !showAllResults));
                     }
                 }
             }
