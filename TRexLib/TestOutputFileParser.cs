@@ -21,7 +21,6 @@ public static class TestOutputFileParser
 
     public static TestResultSet Parse(string xml, FileInfo testOutputFile = null)
     {
-        FileInfo fileInfo;
         XDocument document = null;
         TestResult[] elements;
         try
@@ -54,6 +53,21 @@ public static class TestOutputFileParser
                                                                .Where(ee => ee.Name.LocalName == "StackTrace")
                                                                .Select(ee => ee.Value));
 
+                           var startTime = e.Attribute("startTime") is { } startTimeString &&
+                                           !string.IsNullOrWhiteSpace(startTimeString.Value)
+                                               ? DateTime.Parse(startTimeString.Value)
+                                               : default;
+
+                           var endTime = e.Attribute("endTime") is { } endTimeString &&
+                                         !string.IsNullOrWhiteSpace(endTimeString.Value)
+                                             ? DateTime.Parse(endTimeString.Value)
+                                             : default;
+
+                           var duration = e.Attribute("duration") is { } durationString &&
+                                          !string.IsNullOrWhiteSpace(durationString.Value)
+                                              ? TimeSpan.Parse(durationString.Value)
+                                              : default;
+
                            return new TestResult(
                                fullyQualifiedTestName: e.Attribute("testName")?.Value,
                                outcome: e.Attribute("outcome")
@@ -63,21 +77,9 @@ public static class TestOutputFileParser
                                                      .Then(v => (TestOutcome)Enum.Parse(
                                                                typeof(TestOutcome), v)))
                                          .Else(() => TestOutcome.NotExecuted),
-                               duration: e.Attribute("duration")
-                                          ?.Value
-                                          .IfNotNull()
-                                          .Then(TimeSpan.Parse)
-                                          .ElseDefault(),
-                               startTime: e.Attribute("startTime")
-                                           ?.Value
-                                           .IfNotNull()
-                                           .Then(DateTimeOffset.Parse)
-                                           .ElseDefault(),
-                               endTime: e.Attribute("endTime")
-                                         ?.Value
-                                         .IfNotNull()
-                                         .Then(DateTimeOffset.Parse)
-                                         .ElseDefault(),
+                               duration: duration,
+                               startTime: startTime,
+                               endTime: endTime,
                                testProjectDirectory: codebase?.Directory
                                                              .Parent
                                                              .Parent
@@ -101,8 +103,11 @@ public static class TestOutputFileParser
 
     private static FileInfo CodebaseFor(
         Dictionary<string, string> testDefinitions,
-        XElement e) =>
-        testDefinitions.TryGetValue(e.Attribute("executionId").Value, out var codebase)
-            ? new FileInfo(codebase)
-            : null;
+        XElement e)
+    {
+        return testDefinitions.TryGetValue(e.Attribute("executionId").Value, out var codebase) &&
+               !string.IsNullOrEmpty(codebase)
+                   ? new FileInfo(codebase)
+                   : null;
+    }
 }
