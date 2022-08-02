@@ -4,7 +4,7 @@ namespace TRexLib;
 
 internal static class DirectoryInfoExtensions
 {
-    private static readonly string pathSeparator = new string(Path.DirectorySeparatorChar, 1);
+    private static readonly string pathSeparator = new(Path.DirectorySeparatorChar, 1);
 
     public static DirectoryInfo EnsureTrailingSlash(this DirectoryInfo directory)
     {
