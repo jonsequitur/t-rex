@@ -1,7 +1,4 @@
-﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
-// Licensed under the MIT license. See LICENSE file in the project root for full license information.
-
-using System.Text;
+﻿using System.Text;
 using Microsoft.AspNetCore.Html;
 using XPlot.Plotly;
 using static Microsoft.DotNet.Interactive.Formatting.PocketViewTags;
