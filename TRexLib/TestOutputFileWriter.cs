@@ -43,7 +43,7 @@ public class TestOutputFileWriter
                                                           new XAttribute("id", GetExecutionId(r))),
                                              new XElement("TestMethod",
                                                           new XAttribute("codeBase", GetCodebase(r)),
-                                                          new XAttribute("className", r.ClassName),
+                                                          new XAttribute("className", r.ClassName ?? ""),
                                                           new XAttribute("name", r.TestName)))));
 
         var testEntriesElement = new XElement(
@@ -88,7 +88,7 @@ public class TestOutputFileWriter
 
         string GetCodebase(TestResult r)
         {
-            return r.Codebase.FullName;
+            return r?.Codebase?.FullName ?? "";
         }
     }
 }
