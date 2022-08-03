@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Xml.Linq;
@@ -27,23 +26,22 @@ public static class TestOutputFileParser
         {
             document = XDocument.Parse(xml);
 
-            var testResultElements = document
-                                     .Descendants()
-                                     .Where(e => e.Name.LocalName == "UnitTestResult");
-
             var testDefinitions = document
                                   .Descendants()
                                   .Where(e => e.Name.LocalName == "TestDefinitions")
                                   .SelectMany(e => e.Descendants().Where(ee => ee.Name.LocalName == "UnitTest"))
                                   .ToDictionary(
                                       e => e.Elements().FirstOrDefault()?.Attribute("id")?.Value ?? Guid.NewGuid().ToString(),
-                                      e => e.Elements().Skip(1).FirstOrDefault()?.Attribute("codeBase")?.Value);
+                                      e => (
+                                               codeBase: e.Elements().Skip(1).FirstOrDefault()?.Attribute("codeBase")?.Value,
+                                               className: e.Elements().Skip(1).FirstOrDefault()?.Attribute("className")?.Value
+                                           ));
 
-            elements = testResultElements
+            elements = document
+                       .Descendants()
+                       .Where(e => e.Name.LocalName == "UnitTestResult")
                        .Select(e =>
                        {
-                           var codebase = CodebaseFor(testDefinitions, e);
-
                            var output = string.Join("\n", e.Descendants()
                                                            .Where(ee => ee.Name.LocalName == "Message" ||
                                                                         ee.Name.LocalName == "StdOut")
@@ -68,6 +66,16 @@ public static class TestOutputFileParser
                                               ? TimeSpan.Parse(durationString.Value)
                                               : default;
 
+                           var codeBase = GetFromTestDefinition(
+                               e,
+                               t => !string.IsNullOrWhiteSpace(t.codeBase)
+                                        ? new FileInfo(t.codeBase)
+                                        : null);
+
+                           var testName = e.Attribute("testName") is { } attr
+                                               ? attr.Value
+                                               : default;
+
                            return new TestResult(
                                fullyQualifiedTestName: e.Attribute("testName")?.Value,
                                outcome: e.Attribute("outcome")
@@ -80,17 +88,29 @@ public static class TestOutputFileParser
                                duration: duration,
                                startTime: startTime,
                                endTime: endTime,
-                               testProjectDirectory: codebase?.Directory
+                               testProjectDirectory: codeBase?.Directory
                                                              .Parent
                                                              .Parent
                                                              .Parent
                                                              .EnsureTrailingSlash(),
                                testOutputFile: testOutputFile,
-                               codebase: codebase,
+                               codebase: codeBase,
                                output: output,
                                stacktrace: stacktrace);
                        })
                        .ToArray();
+
+            T GetFromTestDefinition<T>(XElement e, Func<(string codeBase, string className), T> getValue)
+            {
+                if (testDefinitions.TryGetValue(e.Attribute("executionId").Value, out var tuple))
+                {
+                    return getValue(tuple);
+                }
+                else
+                {
+                    return default;
+                }
+            }
         }
         catch (Exception exception)
         {
@@ -99,15 +119,5 @@ public static class TestOutputFileParser
         }
 
         return new TestResultSet(elements);
-    }
-
-    private static FileInfo CodebaseFor(
-        Dictionary<string, string> testDefinitions,
-        XElement e)
-    {
-        return testDefinitions.TryGetValue(e.Attribute("executionId").Value, out var codebase) &&
-               !string.IsNullOrEmpty(codebase)
-                   ? new FileInfo(codebase)
-                   : null;
     }
 }

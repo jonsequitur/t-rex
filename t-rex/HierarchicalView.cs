@@ -7,148 +7,149 @@ using System.Threading.Tasks;
 using Microsoft.Recipes;
 using TRexLib;
 
-namespace TRex.CommandLine
+namespace TRex.CommandLine;
+
+public class HierarchicalView : IConsoleView<TestResultSet>
 {
-    public class HierarchicalView : IConsoleView<TestResultSet>
+    public bool HideTestOutput { get; }
+
+    public HierarchicalView(bool hideTestOutput)
     {
-        public bool HideTestOutput { get; }
+        HideTestOutput = hideTestOutput;
+    }
 
-        public HierarchicalView(bool hideTestOutput)
+    public async Task WriteAsync(IConsole console, TestResultSet testResults)
+    {
+        if (console == null)
         {
-            HideTestOutput = hideTestOutput;
+            throw new ArgumentNullException(nameof(console));
         }
 
-        public async Task WriteAsync(IConsole console, TestResultSet testResults)
+        if (testResults == null)
         {
-            if (console == null)
-            {
-                throw new ArgumentNullException(nameof(console));
-            }
-
-            if (testResults == null)
-            {
-                throw new ArgumentNullException(nameof(testResults));
-            }
-
-            await WriteResults(console, testResults);
-
-            View.WriteSummary(console, testResults);
+            throw new ArgumentNullException(nameof(testResults));
         }
 
-        public Task WriteResults(
-            IConsole console,
-            IEnumerable<TestResult> results)
+        await WriteResults(console, testResults);
+
+        View.WriteSummary(console, testResults);
+    }
+
+    public Task WriteResults(
+        IConsole console,
+        IEnumerable<TestResult> results)
+    {
+        var groupings = results
+                        .GroupBy(result => result.Outcome)
+                        .Select(
+                            byOutcome => new
+                            {
+                                Outcome = byOutcome.Key,
+                                Items = byOutcome
+                                        .GroupBy(result => result.Namespace)
+                                        .Select(
+                                            byNamespace =>
+                                                new
+                                                {
+                                                    Namespace = byNamespace.Key,
+                                                    Items = byNamespace
+                                                            .GroupBy(result => result.ClassName)
+                                                            .Select(
+                                                                byClass => new
+                                                                {
+                                                                    ClassName = byClass.Key,
+                                                                    Items = byClass.Select(g => g)
+                                                                })
+                                                })
+                            });
+
+        foreach (var groupingByOutcome in groupings.OrderBy(t => t.Outcome))
         {
-            var groupings = results
-                            .GroupBy(result => result.Outcome)
-                            .Select(
-                                byOutcome => new
-                                             {
-                                                 Outcome = byOutcome.Key,
-                                                 Items = byOutcome
-                                                         .GroupBy(result => result.Namespace)
-                                                         .Select(
-                                                             byNamespace =>
-                                                                 new
-                                                                 {
-                                                                     Namespace = byNamespace.Key,
-                                                                     Items = byNamespace
-                                                                             .GroupBy(result => result.ClassName)
-                                                                             .Select(
-                                                                                 byClass => new
-                                                                                            {
-                                                                                                ClassName = byClass.Key,
-                                                                                                Items = byClass.Select(g => g)
-                                                                                            })
-                                                                 })
-                                             });
+            using var _ = console.SetColorForOutcome(groupingByOutcome.Outcome);
 
-            foreach (var groupingByOutcome in groupings.OrderBy(t => t.Outcome))
-            {
-                using var _ = console.SetColorForOutcome(groupingByOutcome.Outcome);
-
-                var durationForOutcome =
+            var durationForOutcome =
+                TimeSpan.FromSeconds(
                     groupingByOutcome
                         .Items
                         .Sum(ns =>
                                  ns.Items
                                    .Sum(className =>
                                             className.Items
-                                                     .Sum(test => test.Duration?.TotalSeconds)));
+                                                     .Sum(test => test.Duration?.TotalSeconds))) ?? 0);
 
-                console.Out.Write($"{groupingByOutcome.Outcome.ToString().ToUpper()}     ");
+            console.Out.Write($"{groupingByOutcome.Outcome.ToString().ToUpper()}     ");
 
-                WriteDuration(durationForOutcome);
+            console.WriteDuration(durationForOutcome);
+            console.Out.WriteLine();
 
-                foreach (var groupingByNamespace in groupingByOutcome.Items)
-                {
-                    var durationForNamespace =
+            foreach (var groupingByNamespace in groupingByOutcome.Items)
+            {
+                var durationForNamespace =
+                    TimeSpan.FromSeconds(
                         groupingByNamespace
                             .Items
                             .Sum(className => className.Items
-                                                       .Sum(test => test.Duration?.TotalSeconds));
+                                                       .Sum(test => test.Duration?.TotalSeconds)) ?? 0);
 
-                    console.Out.Write($"  {groupingByNamespace.Namespace}     ");
+                console.Out.Write($"  {groupingByNamespace.Namespace}     ");
 
-                    WriteDuration(durationForNamespace);
+                console.WriteDuration(durationForNamespace);
+                console.Out.WriteLine();
 
-                    foreach (var groupingByClassName in groupingByNamespace.Items)
+                foreach (var groupingByClassName in groupingByNamespace.Items)
+                {
+                    var durationForClass =
+                        TimeSpan.FromSeconds(groupingByClassName.Items
+                                                                .Sum(className => className.Duration?.TotalSeconds) ?? 0);
+
+                    console.Out.Write($"    {groupingByClassName.ClassName}     ");
+
+                    console.WriteDuration(durationForClass);
+                    console.Out.WriteLine();
+
+                    foreach (var result in groupingByClassName.Items)
                     {
-                        var durationForClass =
-                            groupingByClassName.Items
-                                               .Sum(className => className.Duration?.TotalSeconds);
+                        var durationForTest = result.Duration
+                                                    .IfNotNull()
+                                                    .Then(d => TimeSpan.FromSeconds(d.TotalSeconds))
+                                                    .ElseDefault();
 
-                        console.Out.Write($"    {groupingByClassName.ClassName}     ");
+                        console.Out.Write($"      {result.TestName}     ");
 
-                        WriteDuration(durationForClass);
+                        console.WriteDuration(durationForTest);
+                        console.Out.WriteLine();
 
-                        foreach (var result in groupingByClassName.Items)
+                        if (!HideTestOutput &&
+                            groupingByOutcome.Outcome == TestOutcome.Failed)
                         {
-                            var durationForTest = result.Duration.IfNotNull().Then(d => d.TotalSeconds).ElseDefault();
-                            console.Out.Write($"      {result.TestName}     ");
-
-                            WriteDuration(durationForTest);
-
-                            if (!HideTestOutput &&
-                                groupingByOutcome.Outcome == TestOutcome.Failed)
+                            if (!string.IsNullOrWhiteSpace(result.Output))
                             {
-                                if (!string.IsNullOrWhiteSpace(result.Output))
+                                using (console.SetColor(ConsoleColor.Gray))
                                 {
-                                    using (console.SetColor(System.ConsoleColor.Gray))
-                                    {
-                                        console.Out.WriteLine($"        {result.Output.Replace("\r\n", "\n").Replace("\n", "        \n")}");
-                                    }
+                                    console.Out.WriteLine($"        {result.Output.Replace("\r\n", "\n").Replace("\n", "        \n")}");
+                                }
+                            }
+
+                            if (!string.IsNullOrWhiteSpace(result.Stacktrace))
+                            {
+                                using (console.SetColor(ConsoleColor.DarkGray))
+                                {
+                                    console.Out.WriteLine($"        Stack trace:");
                                 }
 
-                                if (!string.IsNullOrWhiteSpace(result.Stacktrace))
+                                using (console.SetColor(ConsoleColor.Gray))
                                 {
-                                    using (console.SetColor(System.ConsoleColor.DarkGray))
-                                    {
-                                        console.Out.WriteLine($"        Stack trace:");
-                                    }
-
-                                    using (console.SetColor(System.ConsoleColor.Gray))
-                                    {
-                                        console.Out.WriteLine($"        {result.Stacktrace.Replace("\r\n", "\n").Replace("\n", "          \n")}");
-                                    }
+                                    console.Out.WriteLine($"        {result.Stacktrace.Replace("\r\n", "\n").Replace("\n", "          \n")}");
                                 }
                             }
                         }
                     }
                 }
-
-                console.Out.WriteLine();
             }
 
-            return Task.CompletedTask;
-
-            void WriteDuration(double? duration)
-            {
-                using (console.SetColor(System.ConsoleColor.Gray))
-                {
-                    console.Out.WriteLine($"({duration}s)");
-                }
-            }
+            console.Out.WriteLine();
         }
+
+        return Task.CompletedTask;
     }
 }

@@ -22,13 +22,7 @@ public class TestOutputFileWriterTests
             new FileInfo(Path.Combine("TRXs", "2", "example2_Windows.trx"))
                 .Parse();
 
-        using var writer = new StringWriter();
-
-        new TestOutputFileWriter(writer).Write(original);
-
-        _output.WriteLine(writer.ToString());
-
-        var roundTripped = TestOutputFileParser.Parse(writer.ToString());
+        var roundTripped = WriteAndThenParse(original);
 
         using var _ = new AssertionScope();
 
@@ -36,5 +30,17 @@ public class TestOutputFileWriterTests
         roundTripped.Passed.Count.Should().Be(original.Passed.Count);
         roundTripped.Passed.Count.Should().Be(original.Passed.Count);
         roundTripped.Failed.Count.Should().Be(original.Failed.Count);
+    }
+    
+    private TestResultSet WriteAndThenParse(TestResultSet original)
+    {
+        using var writer = new StringWriter();
+
+        new TestOutputFileWriter(writer).Write(original);
+
+        _output.WriteLine(writer.ToString());
+
+        var roundTripped = TestOutputFileParser.Parse(writer.ToString());
+        return roundTripped;
     }
 }

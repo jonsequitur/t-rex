@@ -31,11 +31,26 @@ public class TestResult
         Stacktrace = stacktrace;
 
         var testNameParts = fullyQualifiedTestName.Split('.');
-        TestName = testNameParts[^1];
+
         if (testNameParts.Length > 1)
         {
-            ClassName = testNameParts[^2];
-            Namespace = string.Join(".", testNameParts.Take(testNameParts.Length - 2));
+            var testName = testNameParts[^1];
+            var className = testNameParts[^2];
+            var @namespace = string.Join(".", testNameParts.Take(testNameParts.Length - 2));
+
+            // only infer these if fullyQualifiedTestName is typical of .NET tests
+            if (!className.Contains(" ") &&
+                !@namespace.Contains(" "))
+            {
+                TestName = testName;
+                ClassName = className;
+                Namespace = @namespace;
+            }
+        }
+
+        if (TestName is null)
+        {
+            TestName = FullyQualifiedTestName;
         }
     }
 
@@ -50,9 +65,9 @@ public class TestResult
     public string Output { get; }
     public string Stacktrace { get; }
 
-    public string Namespace { get; }
-    public string TestName { get; }
-    public string ClassName { get; }
+    public string Namespace { get; set; }
+    public string TestName { get; set; }
+    public string ClassName { get; set; }
 
     public override string ToString()
     {
