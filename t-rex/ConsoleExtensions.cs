@@ -1,5 +1,6 @@
 using System;
 using System.CommandLine;
+using System.CommandLine.IO;
 using TRexLib;
 
 namespace TRex.CommandLine
@@ -28,6 +29,14 @@ namespace TRex.CommandLine
 
                 default:
                     throw new NotSupportedException();
+            }
+        }
+
+        internal static void WriteDuration(this IConsole console, TimeSpan? duration)
+        {
+            using (console.SetColor(ConsoleColor.Gray))
+            {
+                console.Out.Write($"({(duration ?? TimeSpan.Zero).TotalSeconds}s)");
             }
         }
     }

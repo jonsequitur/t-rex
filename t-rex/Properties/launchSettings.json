@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "t-rex": {
+      "commandName": "Project",
+      "commandLineArgs": "--path \"c:\\temp\\automation\\example2_Windows - experiment.trx\""
+    }
+  }
+}
