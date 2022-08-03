@@ -16,8 +16,9 @@ public class TestResult
         DirectoryInfo testProjectDirectory = null,
         FileInfo testOutputFile = null,
         FileInfo codebase = null,
-        string output = null,
-        string stacktrace = null)
+        string stackTrace = null,
+        string errorMessage = null,
+        string stdOut = null)
     {
         FullyQualifiedTestName = fullyQualifiedTestName;
         Duration = duration;
@@ -27,8 +28,9 @@ public class TestResult
         TestProjectDirectory = testProjectDirectory;
         TestOutputFile = testOutputFile;
         Codebase = codebase;
-        Output = output;
-        Stacktrace = stacktrace;
+        StackTrace = stackTrace;
+        ErrorMessage = errorMessage;
+        StdOut = stdOut;
 
         var testNameParts = fullyQualifiedTestName.Split('.');
 
@@ -36,14 +38,15 @@ public class TestResult
         {
             var testName = testNameParts[^1];
             var className = testNameParts[^2];
+            var fullyQualifiedClassName = string.Join(".", testNameParts.Take(testNameParts.Length - 1));
             var @namespace = string.Join(".", testNameParts.Take(testNameParts.Length - 2));
 
             // only infer these if fullyQualifiedTestName is typical of .NET tests
-            if (!className.Contains(" ") &&
-                !@namespace.Contains(" "))
+            if (!fullyQualifiedClassName.Contains(" ") )
             {
                 TestName = testName;
                 ClassName = className;
+                FullyQualifiedClassName = fullyQualifiedClassName;
                 Namespace = @namespace;
             }
         }
@@ -54,20 +57,26 @@ public class TestResult
         }
     }
 
+    public string Namespace { get; set; }
+    public string TestName { get; set; }
     public string FullyQualifiedTestName { get; }
-    public TimeSpan? Duration { get; }
-    public DateTimeOffset? StartTime { get; }
-    public DateTimeOffset? EndTime { get; }
+    public string FullyQualifiedClassName { get; set; }
+    public string ComputerName { get; set; }
+    public string ClassName { get; set; }
+
     public TestOutcome Outcome { get; }
+
     public DirectoryInfo TestProjectDirectory { get; }
     public FileInfo TestOutputFile { get; }
     public FileInfo Codebase { get; }
-    public string Output { get; }
-    public string Stacktrace { get; }
 
-    public string Namespace { get; set; }
-    public string TestName { get; set; }
-    public string ClassName { get; set; }
+    public DateTimeOffset? StartTime { get; }
+    public DateTimeOffset? EndTime { get; }
+    public TimeSpan? Duration { get; }
+
+    public string ErrorMessage { get; set; }
+    public string StackTrace { get; }
+    public string StdOut { get; set; }
 
     public override string ToString()
     {

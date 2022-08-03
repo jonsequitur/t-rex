@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
@@ -23,6 +24,15 @@ public class TestResultSet : IReadOnlyList<TestResult>
             }
         }
     }
+
+    public DateTimeOffset CreatedTime { get; set; } = DateTimeOffset.UtcNow;
+    public DateTimeOffset QueuedTime { get; set; } = DateTimeOffset.UtcNow;
+    public DateTimeOffset StartedTime { get; set; } = DateTimeOffset.UtcNow;
+    public DateTimeOffset CompletedTime { get; set; } = DateTimeOffset.UtcNow;
+
+    public Guid Id { get; set; } = Guid.NewGuid();
+
+    public string Name { get; set; } = $"";
 
     public IReadOnlyCollection<TestResult> Passed => _passed;
 
@@ -71,6 +81,10 @@ public class TestResultSet : IReadOnlyList<TestResult>
     }
 
     public int Count => _all.Count;
+
+    public string TestRunName { get; set; } = $"{Environment.UserName}@{Environment.MachineName} {DateTime.Now.ToString("O")}";
+
+    public string TestFilePath { get; set; } = "";
 
     public TestResult this[int index] => _all[index];
 

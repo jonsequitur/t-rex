@@ -161,7 +161,7 @@ public class KernelExtension : IKernelExtension
 
                                  var content =
                                      result.Outcome == TestOutcome.Failed
-                                         ? div(testName, br, pre[style: "padding-left:2em"](result.Output))
+                                         ? div(testName, br, pre[style: "padding-left:2em"]((result.ErrorMessage + "\n\n" + result.StackTrace).Trim()))
                                          : testName;
 
                                  return tr[style: OutcomeStyle(result.Outcome)](

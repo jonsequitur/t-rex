@@ -43,6 +43,20 @@ public class TestResultTests
         testResult.ClassName.Should().Be("class");
     }
 
+    [Theory]
+    [InlineData("namespace.class.test", "namespace.class")]
+    [InlineData("deeper.namespace.class.test", "deeper.namespace.class")]
+    [InlineData("still.deeper.namespace.class.test", "still.deeper.namespace.class")]
+    [InlineData("deeper.namespace.class.theorytest(command: \"build\")", "deeper.namespace.class")]
+    public void FullyQualifiedClassName_is_parsed_correctly(
+        string fullyQualifiedTestName,
+        string expected)
+    {
+        var testResult = new TestResult(fullyQualifiedTestName, TestOutcome.NotExecuted);
+
+        testResult.FullyQualifiedClassName.Should().Be(expected);
+    }
+
     [Fact]
     public void Theory_test_is_parsed_correctly()
     {
@@ -66,6 +80,7 @@ public class TestResultTests
         var testResult = new TestResult(fullyQualifiedTestName, TestOutcome.NotExecuted);
 
         testResult.ClassName.Should().BeNull();
+        testResult.FullyQualifiedClassName.Should().BeNull();
         testResult.Namespace.Should().BeNull();
         testResult.TestName.Should().Be(fullyQualifiedTestName);
     }
