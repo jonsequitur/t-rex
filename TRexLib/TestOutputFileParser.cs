@@ -18,13 +18,23 @@ public static class TestOutputFileParser
         return Parse(xml, fileInfo);
     }
 
-    public static TestResultSet Parse(string xml, FileInfo testOutputFile = null)
+    public static TestResultSet Parse(
+        string xml,
+        FileInfo testOutputFile = null)
     {
         XDocument document = null;
         TestResult[] elements;
+        string testRunName = null;
+
         try
         {
             document = XDocument.Parse(xml);
+
+            testRunName = document.Descendants()
+                                  .Where(e => e.Name.LocalName == "TestRun")
+                                  .Attributes("name")
+                                  .Select(e => e.Value)
+                                  .SingleOrDefault();
 
             var testDefinitions = document
                                   .Descendants()
@@ -42,9 +52,12 @@ public static class TestOutputFileParser
                        .Where(e => e.Name.LocalName == "UnitTestResult")
                        .Select(e =>
                        {
-                           var output = string.Join("\n", e.Descendants()
-                                                           .Where(ee => ee.Name.LocalName == "Message" ||
-                                                                        ee.Name.LocalName == "StdOut")
+                           var stdOut = string.Join("\n", e.Descendants()
+                                                           .Where(ee => ee.Name.LocalName == "StdOut")
+                                                           .Select(ee => ee.Value));
+                           
+                           var errorMessage = string.Join("\n", e.Descendants()
+                                                           .Where(ee => ee.Name.LocalName == "Message")
                                                            .Select(ee => ee.Value));
 
                            var stacktrace = string.Join("\n", e.Descendants()
@@ -73,8 +86,8 @@ public static class TestOutputFileParser
                                         : null);
 
                            var testName = e.Attribute("testName") is { } attr
-                                               ? attr.Value
-                                               : default;
+                                              ? attr.Value
+                                              : default;
 
                            return new TestResult(
                                fullyQualifiedTestName: e.Attribute("testName")?.Value,
@@ -95,8 +108,9 @@ public static class TestOutputFileParser
                                                              .EnsureTrailingSlash(),
                                testOutputFile: testOutputFile,
                                codebase: codeBase,
-                               output: output,
-                               stacktrace: stacktrace);
+                               stdOut: stdOut,
+                               errorMessage: errorMessage,
+                               stackTrace: stacktrace);
                        })
                        .ToArray();
 
@@ -118,6 +132,13 @@ public static class TestOutputFileParser
             throw;
         }
 
-        return new TestResultSet(elements);
+        var resultSet = new TestResultSet(elements);
+
+        if (testRunName is { })
+        {
+            resultSet.TestRunName = testRunName;
+        }
+
+        return resultSet;
     }
 }

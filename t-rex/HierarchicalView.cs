@@ -122,15 +122,23 @@ public class HierarchicalView : IConsoleView<TestResultSet>
                         if (!HideTestOutput &&
                             groupingByOutcome.Outcome == TestOutcome.Failed)
                         {
-                            if (!string.IsNullOrWhiteSpace(result.Output))
+                            if (!string.IsNullOrWhiteSpace(result.ErrorMessage))
                             {
                                 using (console.SetColor(ConsoleColor.Gray))
                                 {
-                                    console.Out.WriteLine($"        {result.Output.Replace("\r\n", "\n").Replace("\n", "        \n")}");
+                                    console.Out.WriteLine($"        {result.ErrorMessage.Replace("\r\n", "\n").Replace("\n", "        \n")}");
+                                }
+                            }
+                            
+                            if (!string.IsNullOrWhiteSpace(result.StdOut))
+                            {
+                                using (console.SetColor(ConsoleColor.Gray))
+                                {
+                                    console.Out.WriteLine($"        {result.StdOut.Replace("\r\n", "\n").Replace("\n", "        \n")}");
                                 }
                             }
 
-                            if (!string.IsNullOrWhiteSpace(result.Stacktrace))
+                            if (!string.IsNullOrWhiteSpace(result.StackTrace))
                             {
                                 using (console.SetColor(ConsoleColor.DarkGray))
                                 {
@@ -139,7 +147,7 @@ public class HierarchicalView : IConsoleView<TestResultSet>
 
                                 using (console.SetColor(ConsoleColor.Gray))
                                 {
-                                    console.Out.WriteLine($"        {result.Stacktrace.Replace("\r\n", "\n").Replace("\n", "          \n")}");
+                                    console.Out.WriteLine($"        {result.StackTrace.Replace("\r\n", "\n").Replace("\n", "          \n")}");
                                 }
                             }
                         }

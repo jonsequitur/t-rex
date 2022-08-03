@@ -107,14 +107,13 @@ internal class TestResultSetHtmlFormatter
             {
                 writer.Write("<div>");
 
-                if (!string.IsNullOrEmpty(result.Output))
+                if (!string.IsNullOrEmpty(result.ErrorMessage))
                 {
-                    var output = result.Output + "\n\n" + result.Stacktrace;
                     writer.Write("<details>");
                     writer.Write("<summary>");
                     WriteTestName(result);
                     writer.Write("</summary>");
-                    writer.Write($"<pre>{HtmlEncode(output)}</pre>");
+                    writer.Write($"<pre>{HtmlEncode(result.ErrorMessage)}</pre>");
                     writer.Write("</details>");
                 }
                 else
