@@ -6,11 +6,11 @@ using Xunit.Abstractions;
 
 namespace TRexLib.Tests;
 
-public class TestOutputFileWriterTests
+public class TestOutputDocumentWriterTests
 {
     private readonly ITestOutputHelper _output;
 
-    public TestOutputFileWriterTests(ITestOutputHelper output)
+    public TestOutputDocumentWriterTests(ITestOutputHelper output)
     {
         _output = output;
     }
@@ -88,11 +88,11 @@ public class TestOutputFileWriterTests
     {
         using var writer = new StringWriter();
 
-        new TestOutputFileWriter(writer).Write(original);
+        new TestOutputDocumentWriter(writer).Write(original);
 
         _output.WriteLine(writer.ToString());
 
-        var roundTripped = TestOutputFileParser.Parse(writer.ToString());
+        var roundTripped = TestOutputDocumentParser.Parse(writer.ToString());
 
         return roundTripped;
     }

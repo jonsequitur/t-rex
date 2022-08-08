@@ -6,11 +6,11 @@ using System.Xml.Linq;
 
 namespace TRexLib;
 
-public class TestOutputFileWriter
+public class TestOutputDocumentWriter
 {
     private readonly TextWriter _writer;
 
-    public TestOutputFileWriter(TextWriter writer)
+    public TestOutputDocumentWriter(TextWriter writer)
     {
         _writer = writer;
     }

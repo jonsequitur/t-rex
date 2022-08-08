@@ -7,7 +7,7 @@ using static System.Environment;
 
 namespace TRexLib;
 
-public static class TestOutputFileParser
+public static class TestOutputDocumentParser
 {
     public static TestResultSet Parse(this FileInfo fileInfo)
     {
