@@ -1,6 +1,4 @@
 using System.CommandLine;
-using System.CommandLine.IO;
-using System.CommandLine.Parsing;
 using System.IO;
 using System.Threading.Tasks;
 using FluentAssertions;
@@ -12,12 +10,15 @@ namespace TRexLib.Tests
 {
     public class DisplayResultsReturnCodeTests
     {
-        private readonly IConsole console = new TestConsole();
         private readonly ITestOutputHelper output;
+        private CommandLineConfiguration _commandLineConfig;
 
         public DisplayResultsReturnCodeTests(ITestOutputHelper output)
         {
             this.output = output;
+            _commandLineConfig = CommandLine.CommandLineConfig;
+            _commandLineConfig.Output = new StringWriter();
+            _commandLineConfig.Error = new StringWriter();
         }
 
         [Fact]
@@ -25,7 +26,7 @@ namespace TRexLib.Tests
         {
             var directoryPath = new DirectoryInfo(Path.Combine("TRXs")).FullName;
 
-            var result = await CommandLine.Parser.InvokeAsync($"--path \"{directoryPath}\" --filter *BlockingMemoryStreamTests*", console);
+            var result = await CommandLine.CommandLineConfig.InvokeAsync($"--path \"{directoryPath}\" --filter *BlockingMemoryStreamTests*");
 
             result.Should().Be(0);
         }
@@ -35,7 +36,7 @@ namespace TRexLib.Tests
         {
             var directoryPath = new DirectoryInfo(Path.Combine("TRXs")).FullName;
 
-            var result = await CommandLine.Parser.InvokeAsync($"--path \"{directoryPath}\"", console);
+            var result = await CommandLine.CommandLineConfig.InvokeAsync($"--path \"{directoryPath}\"");
 
             result.Should().Be(1);
         }
@@ -47,19 +48,17 @@ namespace TRexLib.Tests
 
             output.WriteLine($"directoryPath: {directoryPath}");
 
-            var parser = CommandLine.Parser;
-
-            var result = parser.Parse($"--path \"{directoryPath}\" --filter that-matches-nothing");
+            var result = _commandLineConfig.RootCommand.Parse($"--path \"{directoryPath}\" --filter that-matches-nothing");
 
             output.WriteLine($"result: {result}");
 
-            var exitCode = await result.InvokeAsync(console);
+            var exitCode = await result.InvokeAsync();
 
             output.WriteLine("Out:");
-            output.WriteLine(console.Out.ToString());
+            output.WriteLine(_commandLineConfig.Output.ToString());
 
             output.WriteLine("Error:");
-            output.WriteLine(console.Error.ToString());
+            output.WriteLine(_commandLineConfig.Output.ToString());
 
             exitCode.Should().Be(-1);
         }

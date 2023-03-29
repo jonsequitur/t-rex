@@ -1,6 +1,5 @@
 ﻿using System;
-using System.CommandLine;
-using System.CommandLine.IO;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using TRexLib;
@@ -16,7 +15,7 @@ namespace TRex.CommandLine
             this.outputFormat = outputFormat;
         }
 
-        public Task WriteAsync(IConsole console, TestResultSet testResults)
+        public Task WriteAsync(TextWriter console, TestResultSet testResults)
         {
             var sorted = outputFormat switch
             {
@@ -33,14 +32,14 @@ namespace TRex.CommandLine
             {
                 using var _ = console.SetColorForOutcome(result.Outcome);
 
-                console.Out.Write($"{result.StartTime:s}: {result.Namespace}.{result.ClassName}.{result.TestName} ({result.Outcome}: ");
+                console.Write($"{result.StartTime:s}: {result.Namespace}.{result.ClassName}.{result.TestName} ({result.Outcome}: ");
                 
                 console.WriteDuration(result.Duration);
 
-                console.Out.WriteLine(")");
+                console.WriteLine(")");
             }
 
-            console.Out.WriteLine();
+            console.WriteLine();
 
             View.WriteSummary(console, testResults);
 

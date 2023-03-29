@@ -1,4 +1,4 @@
-using System.CommandLine;
+using System.IO;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 using TRexLib;
@@ -7,7 +7,7 @@ namespace TRex.CommandLine
 {
     public class JsonView : IConsoleView<TestResultSet>
     {
-        public Task WriteAsync(IConsole console, TestResultSet testResults)
+        public Task WriteAsync(TextWriter console, TestResultSet testResults)
         {
             var json = JsonConvert.SerializeObject(
                 testResults,
@@ -15,7 +15,7 @@ namespace TRex.CommandLine
                 new FileInfoJsonConverter(),
                 new DirectoryInfoJsonConverter());
 
-            console.Out.Write(json);
+            console.Write(json);
 
             return Task.CompletedTask;
         }

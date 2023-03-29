@@ -8,7 +8,7 @@ namespace TRex.CommandLine
     {
         static async Task<int> Main(string[] args)
         {
-           return await CommandLine.Parser.InvokeAsync(args);
+           return await CommandLine.CommandLineConfig.InvokeAsync(args);
         }
     }
 }

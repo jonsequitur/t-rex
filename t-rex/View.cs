@@ -1,28 +1,27 @@
-﻿using System.CommandLine;
-using System.CommandLine.IO;
+﻿using System.IO;
 using TRexLib;
 
 namespace TRex.CommandLine
 {
     internal static class View
     {
-        internal static void WriteSummary(IConsole console, TestResultSet testResults)
+        internal static void WriteSummary(TextWriter console, TestResultSet testResults)
         {
-            console.Out.WriteLine("SUMMARY:");
+            console.WriteLine("SUMMARY:");
 
             using (console.SetColorForOutcome(TestOutcome.Passed))
             {
-                console.Out.Write($"Passed: {testResults.Passed.Count}, ");
+                console.Write($"Passed: {testResults.Passed.Count}, ");
             }
 
             using (console.SetColorForOutcome(TestOutcome.Failed))
             {
-                console.Out.Write($"Failed: {testResults.Failed.Count}, ");
+                console.Write($"Failed: {testResults.Failed.Count}, ");
             }
 
             using (console.SetColorForOutcome(TestOutcome.NotExecuted))
             {
-                console.Out.WriteLine($"Not run: {testResults.NotExecuted.Count}");
+                console.WriteLine($"Not run: {testResults.NotExecuted.Count}");
             }
         }
     }
