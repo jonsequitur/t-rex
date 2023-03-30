@@ -22,20 +22,16 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Compile Include="..\TRexLib.InteractiveExtension\Bind.cs" Link="Bind.cs" />
-  </ItemGroup>
-
-  <ItemGroup>
     <ProjectReference Include="..\TRexLib\TRexLib.csproj" />
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="newtonsoft.json" Version="13.0.1" />
+    <PackageReference Include="newtonsoft.json" Version="13.0.3" />
     <PackageReference Include="pocket.disposable" Version="1.1.0">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="System.CommandLine" Version="2.0.0-beta4.22272.1" />
+    <PackageReference Include="System.CommandLine" Version="2.0.0-beta4.23179.2" />
   </ItemGroup>
   
 </Project>

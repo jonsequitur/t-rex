@@ -1,18 +1,17 @@
 using System;
-using System.CommandLine;
-using System.CommandLine.IO;
+using System.IO;
 using TRexLib;
 
 namespace TRex.CommandLine
 {
     internal static class ConsoleExtensions
     {
-        public static IDisposable SetColor(this IConsole console, ConsoleColor color)
+        public static IDisposable SetColor(this TextWriter console, ConsoleColor color)
         {
             return new OutputColor(color);
         }
 
-        public static IDisposable SetColorForOutcome(this IConsole console, TestOutcome outcome)
+        public static IDisposable SetColorForOutcome(this TextWriter console, TestOutcome outcome)
         {
             switch (outcome)
             {
@@ -32,11 +31,11 @@ namespace TRex.CommandLine
             }
         }
 
-        internal static void WriteDuration(this IConsole console, TimeSpan? duration)
+        internal static void WriteDuration(this TextWriter console, TimeSpan? duration)
         {
             using (console.SetColor(ConsoleColor.Gray))
             {
-                console.Out.Write($"({(duration ?? TimeSpan.Zero).TotalSeconds}s)");
+                console.Write($"({(duration ?? TimeSpan.Zero).TotalSeconds}s)");
             }
         }
     }

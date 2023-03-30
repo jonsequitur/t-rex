@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
-using System.CommandLine;
-using System.CommandLine.IO;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Recipes;
@@ -18,7 +17,7 @@ public class HierarchicalView : IConsoleView<TestResultSet>
         HideTestOutput = hideTestOutput;
     }
 
-    public async Task WriteAsync(IConsole console, TestResultSet testResults)
+    public async Task WriteAsync(TextWriter console, TestResultSet testResults)
     {
         if (console == null)
         {
@@ -36,7 +35,7 @@ public class HierarchicalView : IConsoleView<TestResultSet>
     }
 
     public Task WriteResults(
-        IConsole console,
+        TextWriter console,
         IEnumerable<TestResult> results)
     {
         var groupings = results
@@ -77,10 +76,10 @@ public class HierarchicalView : IConsoleView<TestResultSet>
                                             className.Items
                                                      .Sum(test => test.Duration?.TotalSeconds))) ?? 0);
 
-            console.Out.Write($"{groupingByOutcome.Outcome.ToString().ToUpper()}     ");
+            console.Write($"{groupingByOutcome.Outcome.ToString().ToUpper()}     ");
 
             console.WriteDuration(durationForOutcome);
-            console.Out.WriteLine();
+            console.WriteLine();
 
             foreach (var groupingByNamespace in groupingByOutcome.Items)
             {
@@ -91,10 +90,10 @@ public class HierarchicalView : IConsoleView<TestResultSet>
                             .Sum(className => className.Items
                                                        .Sum(test => test.Duration?.TotalSeconds)) ?? 0);
 
-                console.Out.Write($"  {groupingByNamespace.Namespace}     ");
+                console.Write($"  {groupingByNamespace.Namespace}     ");
 
                 console.WriteDuration(durationForNamespace);
-                console.Out.WriteLine();
+                console.WriteLine();
 
                 foreach (var groupingByClassName in groupingByNamespace.Items)
                 {
@@ -102,10 +101,10 @@ public class HierarchicalView : IConsoleView<TestResultSet>
                         TimeSpan.FromSeconds(groupingByClassName.Items
                                                                 .Sum(className => className.Duration?.TotalSeconds) ?? 0);
 
-                    console.Out.Write($"    {groupingByClassName.ClassName}     ");
+                    console.Write($"    {groupingByClassName.ClassName}     ");
 
                     console.WriteDuration(durationForClass);
-                    console.Out.WriteLine();
+                    console.WriteLine();
 
                     foreach (var result in groupingByClassName.Items)
                     {
@@ -114,10 +113,10 @@ public class HierarchicalView : IConsoleView<TestResultSet>
                                                     .Then(d => TimeSpan.FromSeconds(d.TotalSeconds))
                                                     .ElseDefault();
 
-                        console.Out.Write($"      {result.TestName}     ");
+                        console.Write($"      {result.TestName}     ");
 
                         console.WriteDuration(durationForTest);
-                        console.Out.WriteLine();
+                        console.WriteLine();
 
                         if (!HideTestOutput &&
                             groupingByOutcome.Outcome == TestOutcome.Failed)
@@ -126,7 +125,7 @@ public class HierarchicalView : IConsoleView<TestResultSet>
                             {
                                 using (console.SetColor(ConsoleColor.Gray))
                                 {
-                                    console.Out.WriteLine($"        {result.ErrorMessage.Replace("\r\n", "\n").Replace("\n", "        \n")}");
+                                    console.WriteLine($"        {result.ErrorMessage.Replace("\r\n", "\n").Replace("\n", "        \n")}");
                                 }
                             }
                             
@@ -134,7 +133,7 @@ public class HierarchicalView : IConsoleView<TestResultSet>
                             {
                                 using (console.SetColor(ConsoleColor.Gray))
                                 {
-                                    console.Out.WriteLine($"        {result.StdOut.Replace("\r\n", "\n").Replace("\n", "        \n")}");
+                                    console.WriteLine($"        {result.StdOut.Replace("\r\n", "\n").Replace("\n", "        \n")}");
                                 }
                             }
 
@@ -142,12 +141,12 @@ public class HierarchicalView : IConsoleView<TestResultSet>
                             {
                                 using (console.SetColor(ConsoleColor.DarkGray))
                                 {
-                                    console.Out.WriteLine($"        Stack trace:");
+                                    console.WriteLine($"        Stack trace:");
                                 }
 
                                 using (console.SetColor(ConsoleColor.Gray))
                                 {
-                                    console.Out.WriteLine($"        {result.StackTrace.Replace("\r\n", "\n").Replace("\n", "          \n")}");
+                                    console.WriteLine($"        {result.StackTrace.Replace("\r\n", "\n").Replace("\n", "          \n")}");
                                 }
                             }
                         }
@@ -155,7 +154,7 @@ public class HierarchicalView : IConsoleView<TestResultSet>
                 }
             }
 
-            console.Out.WriteLine();
+            console.WriteLine();
         }
 
         return Task.CompletedTask;

@@ -1,10 +1,9 @@
 ﻿using System.Collections.Generic;
 using System.CommandLine;
-using System.CommandLine.Builder;
-using System.CommandLine.Parsing;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
+using System.Threading;
 using System.Threading.Tasks;
 using TRexLib;
 
@@ -12,40 +11,39 @@ namespace TRex.CommandLine
 {
     public static class CommandLine
     {
-        public static Parser Parser { get; }
+        public static CommandLineConfiguration CommandLineConfig { get; }
 
         static CommandLine()
         {
             var fileOption = new Option<FileInfo[]>(
-                    "--file", ".trx file(s) to parse")
-                .ExistingOnly();
+                    "--file") { Description = ".trx file(s) to parse" }
+                .AcceptExistingOnly();
 
             var filterOption = new Option<string>(
-                new[] { "-f", "--filter" },
-                "Only look at tests containing the specified text. \"*\" can be used as a wildcard.");
+                "--filter",
+                "-f")
+                { Description = "Only look at tests containing the specified text. \"*\" can be used as a wildcard." };
 
-            var formatOption = new Option<OutputFormat>(
-                "--format",
-                description: "The format for the output.",
-                getDefaultValue: () => OutputFormat.Hierarchical);
+            var formatOption = new Option<OutputFormat>("--format")
+            {
+                Description = "The format for the output.",
+                DefaultValueFactory = _ => OutputFormat.Hierarchical
+            };
 
-            var pathOption = new Option<DirectoryInfo[]>(
-                "--path",
-                description:
-                "Directory or directories to search for .trx files. Only the most recent .trx file in a given directory is used.",
-                getDefaultValue: () => new[] { new DirectoryInfo(Directory.GetCurrentDirectory()) });
+            var pathOption = new Option<DirectoryInfo[]>("--path")
+            {
+                Description = "Directory or directories to search for .trx files. Only the most recent .trx file in a given directory is used.",
+                DefaultValueFactory = _ => new[] { new DirectoryInfo(Directory.GetCurrentDirectory()) }
+            };
 
-            var hideTestOutputOption = new Option<bool>(
-                new[]
-                {
-                    "-d",
-                    "--hide-test-output"
-                },
-                "For failed tests, hide detailed test output.");
+            var hideTestOutputOption = new Option<bool>("--hide-test-output", "-d")
+            {
+                Description = "For failed tests, hide detailed test output."
+            };
 
             var allOption = new Option<bool>(
-                "--all",
-                "Show tests results for all test runs. By default, only the latest test run is shown.");
+                    "--all")
+                { Description = "Show tests results for all test runs. By default, only the latest test run is shown." };
 
             var rootCommand = new RootCommand("A command line testing tool for .NET")
             {
@@ -57,30 +55,20 @@ namespace TRex.CommandLine
                 allOption,
             };
 
-            rootCommand.SetHandler(
-                Run,
-                formatOption,
-                fileOption,
-                pathOption,
-                filterOption,
-                hideTestOutputOption,
-                allOption,
-                Bind.FromServiceProvider<IConsole>());
+            rootCommand.SetAction(Run);
 
-            Parser = new CommandLineBuilder(rootCommand)
-                     .UseDefaults()
-                     .Build();
+            CommandLineConfig = new(rootCommand);
 
-            async Task<int> Run(
-                OutputFormat format,
-                FileInfo[] file,
-                DirectoryInfo[] path,
-                string filter,
-                bool hideTestOutput,
-                bool showAllResults,
-                IConsole console)
+            async Task<int> Run(ParseResult parseResult, CancellationToken token)
             {
-                return await DisplayResults(format, file, path, filter, hideTestOutput, showAllResults, console);
+                OutputFormat format = parseResult.GetValue(formatOption);
+                FileInfo[] file = parseResult.GetValue(fileOption);
+                DirectoryInfo[] path = parseResult.GetValue(pathOption);
+                string filter = parseResult.GetValue(filterOption);
+                bool hideTestOutput = parseResult.GetValue(hideTestOutputOption);
+                bool showAllResults = parseResult.GetValue(allOption);
+
+                return await DisplayResults(format, file, path, filter, hideTestOutput, showAllResults);
             }
         }
 
@@ -90,8 +78,7 @@ namespace TRex.CommandLine
             DirectoryInfo[] path,
             string filter,
             bool hideTestOutput,
-            bool showAllResults,
-            IConsole console)
+            bool showAllResults)
         {
             var allFiles = new List<FileInfo>();
 
@@ -130,7 +117,7 @@ namespace TRex.CommandLine
                 case OutputFormat.Hierarchical:
                 {
                     var view = new HierarchicalView(hideTestOutput);
-                    await view.WriteAsync(console, resultSet);
+                    await view.WriteAsync(CommandLineConfig.Output, resultSet);
 
                     break;
                 }
@@ -138,7 +125,7 @@ namespace TRex.CommandLine
                 case OutputFormat.Json:
                 {
                     var view = new JsonView();
-                    await view.WriteAsync(console, resultSet);
+                    await view.WriteAsync(CommandLineConfig.Output, resultSet);
 
                     break;
                 }
@@ -146,7 +133,7 @@ namespace TRex.CommandLine
                 default:
                 {
                     var view = new ExecutionOrderView(format);
-                    await view.WriteAsync(console, resultSet);
+                    await view.WriteAsync(CommandLineConfig.Output, resultSet);
 
                     break;
                 }
