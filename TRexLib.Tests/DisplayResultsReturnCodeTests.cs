@@ -11,14 +11,16 @@ namespace TRexLib.Tests
     public class DisplayResultsReturnCodeTests
     {
         private readonly ITestOutputHelper output;
-        private CommandLineConfiguration _commandLineConfig;
+        private readonly InvocationConfiguration _commandLineConfig;
 
         public DisplayResultsReturnCodeTests(ITestOutputHelper output)
         {
             this.output = output;
-            _commandLineConfig = CommandLine.CommandLineConfig;
-            _commandLineConfig.Output = new StringWriter();
-            _commandLineConfig.Error = new StringWriter();
+            _commandLineConfig = new()
+            {
+                Output = new StringWriter(),
+                Error = new StringWriter()
+            };
         }
 
         [Fact]
@@ -26,7 +28,7 @@ namespace TRexLib.Tests
         {
             var directoryPath = new DirectoryInfo(Path.Combine("TRXs")).FullName;
 
-            var result = await CommandLine.CommandLineConfig.InvokeAsync($"--path \"{directoryPath}\" --filter *BlockingMemoryStreamTests*");
+            var result = await CommandLine.RootCommand.Parse($"--path \"{directoryPath}\" --filter *BlockingMemoryStreamTests*").InvokeAsync(_commandLineConfig);
 
             result.Should().Be(0);
         }
@@ -36,7 +38,7 @@ namespace TRexLib.Tests
         {
             var directoryPath = new DirectoryInfo(Path.Combine("TRXs")).FullName;
 
-            var result = await CommandLine.CommandLineConfig.InvokeAsync($"--path \"{directoryPath}\"");
+            var result = await CommandLine.RootCommand.Parse($"--path \"{directoryPath}\"").InvokeAsync(_commandLineConfig);
 
             result.Should().Be(1);
         }
@@ -48,7 +50,7 @@ namespace TRexLib.Tests
 
             output.WriteLine($"directoryPath: {directoryPath}");
 
-            var result = _commandLineConfig.RootCommand.Parse($"--path \"{directoryPath}\" --filter that-matches-nothing");
+            var result = CommandLine.RootCommand.Parse($"--path \"{directoryPath}\" --filter that-matches-nothing");
 
             output.WriteLine($"result: {result}");
 

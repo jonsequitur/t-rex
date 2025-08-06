@@ -11,8 +11,6 @@ namespace TRex.CommandLine
 {
     public static class CommandLine
     {
-        public static CommandLineConfiguration CommandLineConfig { get; }
-
         static CommandLine()
         {
             var fileOption = new Option<FileInfo[]>(
@@ -57,7 +55,7 @@ namespace TRex.CommandLine
 
             rootCommand.SetAction(Run);
 
-            CommandLineConfig = new(rootCommand);
+            RootCommand = rootCommand;
 
             async Task<int> Run(ParseResult parseResult, CancellationToken token)
             {
@@ -68,11 +66,14 @@ namespace TRex.CommandLine
                 bool hideTestOutput = parseResult.GetValue(hideTestOutputOption);
                 bool showAllResults = parseResult.GetValue(allOption);
 
-                return await DisplayResults(format, file, path, filter, hideTestOutput, showAllResults);
+                return await DisplayResults(parseResult.InvocationConfiguration.Output, format, file, path, filter, hideTestOutput, showAllResults);
             }
         }
 
+        public static RootCommand RootCommand { get; private set; }
+
         public static async Task<int> DisplayResults(
+            TextWriter output,
             OutputFormat format,
             FileInfo[] file,
             DirectoryInfo[] path,
@@ -82,7 +83,7 @@ namespace TRex.CommandLine
         {
             var allFiles = new List<FileInfo>();
 
-            if (file is { } && file.Any())
+            if (file is not null && file.Any())
             {
                 foreach (var fileInfo in file.Where(f => f.Exists))
                 {
@@ -117,7 +118,7 @@ namespace TRex.CommandLine
                 case OutputFormat.Hierarchical:
                 {
                     var view = new HierarchicalView(hideTestOutput);
-                    await view.WriteAsync(CommandLineConfig.Output, resultSet);
+                    await view.WriteAsync(output, resultSet);
 
                     break;
                 }
@@ -125,7 +126,7 @@ namespace TRex.CommandLine
                 case OutputFormat.Json:
                 {
                     var view = new JsonView();
-                    await view.WriteAsync(CommandLineConfig.Output, resultSet);
+                    await view.WriteAsync(output, resultSet);
 
                     break;
                 }
@@ -133,7 +134,7 @@ namespace TRex.CommandLine
                 default:
                 {
                     var view = new ExecutionOrderView(format);
-                    await view.WriteAsync(CommandLineConfig.Output, resultSet);
+                    await view.WriteAsync(output, resultSet);
 
                     break;
                 }

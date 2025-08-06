@@ -14,7 +14,7 @@ namespace TRexLib.Tests
     public class DisplayResultsDiscoveryTests
     {
         private readonly ITestOutputHelper output;
-        internal  CommandLineConfiguration _commandLineConfig;
+        internal InvocationConfiguration _commandLineConfig;
 
         private readonly JsonConverter[] converters =
         {
@@ -25,15 +25,17 @@ namespace TRexLib.Tests
         public DisplayResultsDiscoveryTests(ITestOutputHelper output)
         {
             this.output = output;
-            _commandLineConfig = CommandLine.CommandLineConfig;
-            _commandLineConfig.Output = new StringWriter();
-            _commandLineConfig.Error = new StringWriter();
+            _commandLineConfig = new()
+            {
+                Output = new StringWriter(),
+                Error = new StringWriter()
+            };
         }
 
         [Fact]
         public async Task When_no_files_are_specified_then_files_are_discovered_recursively()
         {
-            await _commandLineConfig.InvokeAsync("--format json");
+            await CommandLine.RootCommand.Parse("--format json").InvokeAsync(_commandLineConfig);
 
             var results = JsonConvert.DeserializeObject<TestResultSet>(_commandLineConfig.Output.ToString(), converters);
 
@@ -48,7 +50,7 @@ namespace TRexLib.Tests
             var filePath = new FileInfo(Path.Combine("TRXs", "example1_Windows.trx"))
                 .FullName;
 
-            await _commandLineConfig.InvokeAsync($"--file \"{filePath}\" --format json");
+            await CommandLine.RootCommand.Parse($"--file \"{filePath}\" --format json").InvokeAsync(_commandLineConfig);
 
             output.WriteLine(_commandLineConfig.Output.ToString());
 
@@ -61,7 +63,7 @@ namespace TRexLib.Tests
         {
             var directoryPath = new DirectoryInfo(Path.Combine("TRXs", "2")).FullName;
 
-            await _commandLineConfig.InvokeAsync($"--path \"{directoryPath}\" --format json");
+            await CommandLine.RootCommand.Parse($"--path \"{directoryPath}\" --format json").InvokeAsync(_commandLineConfig);
 
             output.WriteLine(_commandLineConfig.Output.ToString());
 
@@ -74,7 +76,7 @@ namespace TRexLib.Tests
         {
             var directoryPath = new DirectoryInfo(Path.Combine("TRXs", "2")).FullName;
 
-            await _commandLineConfig.InvokeAsync($"--path \"{directoryPath}\" --format json --all");
+            await CommandLine.RootCommand.Parse($"--path \"{directoryPath}\" --format json --all").InvokeAsync(_commandLineConfig);
 
             output.WriteLine(_commandLineConfig.Output.ToString());
 
@@ -87,7 +89,7 @@ namespace TRexLib.Tests
         {
             var directoryPath = new DirectoryInfo(Path.Combine("TRXs", "2")).FullName;
 
-            await _commandLineConfig.InvokeAsync($"--path \"{directoryPath}\" --filter verbosity --format json");
+            await CommandLine.RootCommand.Parse($"--path \"{directoryPath}\" --filter verbosity --format json").InvokeAsync(_commandLineConfig);
 
             output.WriteLine(_commandLineConfig.Error.ToString());
             output.WriteLine(_commandLineConfig.Output.ToString());
@@ -104,7 +106,7 @@ namespace TRexLib.Tests
         {
             var directoryPath = new DirectoryInfo(Path.Combine("TRXs", "1")).FullName;
 
-            await _commandLineConfig.InvokeAsync($"--path \"{directoryPath}\" --filter *DOTNET* --format json");
+            await CommandLine.RootCommand.Parse($"--path \"{directoryPath}\" --filter *DOTNET* --format json").InvokeAsync(_commandLineConfig);
 
             output.WriteLine(_commandLineConfig.Error.ToString());
             output.WriteLine(_commandLineConfig.Output.ToString());
