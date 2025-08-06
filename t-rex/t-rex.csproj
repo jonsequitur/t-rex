@@ -2,11 +2,12 @@
 
   <PropertyGroup>
     <OutputType>exe</OutputType>
-    <TargetFramework>net6.0</TargetFramework>
+    <TargetFramework>net9.0</TargetFramework>
     <RootNamespace>TRex.CommandLine</RootNamespace>
     <ToolCommandName>t-rex</ToolCommandName>
     <PackAsTool>true</PackAsTool>
     <LangVersion>latest</LangVersion>
+    <RollForward>LatestMajor</RollForward>
 
     <Title>A command line tool for testing with dotnet</Title> 
     <Description>With t-rex, you can explore the results of your most recent test run. It discovers, parses, and displays the contents of .trx files.</Description>
@@ -27,11 +28,11 @@
 
   <ItemGroup>
     <PackageReference Include="newtonsoft.json" Version="13.0.3" />
-    <PackageReference Include="pocket.disposable" Version="1.1.0">
+    <PackageReference Include="pocket.disposable" Version="1.2.0">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="System.CommandLine" Version="2.0.0-beta4.23179.2" />
+    <PackageReference Include="System.CommandLine" Version="2.0.0-rc.1.25406.101" />
   </ItemGroup>
   
 </Project>

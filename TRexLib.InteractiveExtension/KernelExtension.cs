@@ -1,11 +1,12 @@
 ﻿using System;
-using System.CommandLine;
 using System.IO;
 using System.Linq;
 using System.Text.Encodings.Web;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Html;
 using Microsoft.DotNet.Interactive;
+using Microsoft.DotNet.Interactive.Directives;
+using Microsoft.DotNet.Interactive.Events;
 using Microsoft.DotNet.Interactive.Formatting;
 using Microsoft.DotNet.Interactive.Utility;
 using XPlot.Plotly;
@@ -21,81 +22,78 @@ public class KernelExtension : IKernelExtension
 
         if (kernel is { } kernelBase)
         {
-            var trex = new Command("#!t-rex", "Run unit tests from a notebook.")
+            var runTestsDirective = new KernelActionDirective("run")
             {
-                RunCommand(),
-                ShowCommand()
+                Description = "Runs unit tests using dotnet test",
+                Parameters =
+                [
+                    new KernelDirectiveParameter(
+                        "--project",
+                        "The project or solution file to operate on. If a file is not specified, the command will search the current directory for one.")
+                ]
             };
-            kernelBase.AddDirective(trex);
+
+            var showTestsDirective = new KernelActionDirective("show")
+            {
+                Description = "Show the results of the latest test run",
+
+                Parameters =
+                [
+                    new KernelDirectiveParameter("--dir")
+                    {
+                        Description = "The directory under which to search for .trx files",
+                        AllowImplicitName = true
+                    }
+                ]
+            };
+
+            var trex = new KernelActionDirective("#!t-rex")
+            {
+                Description = "Run unit tests from a notebook.",
+                Subcommands =
+                [
+                    runTestsDirective,
+                    showTestsDirective
+                ]
+            };
+
+            kernelBase.AddDirective<RunTestsCommand>(runTestsDirective, RunTestsAsync);
+            kernelBase.AddDirective<ShowTestsCommand>(showTestsDirective, (command, context) =>
+            {
+                ShowTests(command, context);
+                return Task.CompletedTask;
+            });
+
+            kernelBase.KernelInfo.SupportedDirectives.Add(trex);
         }
 
         return Task.CompletedTask;
     }
 
-    private static Command RunCommand()
-    {
-        var projectArg = new Argument<FileSystemInfo>("project", getDefaultValue: () => new DirectoryInfo(Directory.GetCurrentDirectory()))
-        {
-            Description = "The project or solution file to operate on. If a file is not specified, the command will search the current directory for one."
-        }.ExistingOnly();
-
-        var runTestsCommand = new Command("run", "Runs unit tests using dotnet test")
-        {
-            projectArg
-        };
-
-        runTestsCommand.SetHandler(
-            RunTests, 
-            projectArg, 
-            Bind.FromServiceProvider<KernelInvocationContext>());
-
-        return runTestsCommand;
-    }
-
-    private static Command ShowCommand()
-    {
-        var dirArg = new Argument<DirectoryInfo>("dir", getDefaultValue: () => new DirectoryInfo(Directory.GetCurrentDirectory()))
-        {
-            Description = "The directory under which to search for .trx files"
-        }.ExistingOnly();
-
-        var showTestsCommand = new Command("show", "Show the results of the latest test run")
-        {
-            dirArg
-        };
-
-        showTestsCommand.SetHandler(
-            ShowTests, 
-            dirArg, 
-            Bind.FromServiceProvider<KernelInvocationContext>());
-
-        return showTestsCommand;
-    }
-
-    private static async Task RunTests(FileSystemInfo project, KernelInvocationContext context)
+    private static async Task RunTestsAsync(RunTestsCommand command, KernelInvocationContext context)
     {
         var dotnet = new Dotnet();
 
         var process = dotnet.StartProcess(
-            $"test -l:trx \"{project.FullName}\"",
-            output => context.DisplayStandardOut(output + "\n"),
-            error => context.DisplayStandardError(error + "\n"));
+            $"test -l:trx \"{command.Project.FullName}\"",
+            output => DisplayStandardOut(context, output + "\n"),
+            error => DisplayStandardError(context, error + "\n"));
 
         await process.WaitForExitAsync();
 
-        var dir = project switch
+        var dir = command.Project switch
         {
             DirectoryInfo directoryInfo => directoryInfo,
             FileInfo fileInfo => fileInfo.Directory,
-            _ => throw new ArgumentOutOfRangeException(nameof(project))
+            _ => throw new ArgumentOutOfRangeException(nameof(command.Project))
         };
 
-        ShowTests(dir, context);
+        ShowTests(new() { Dir = dir }, context);
     }
 
-    private static void ShowTests(DirectoryInfo dir, KernelInvocationContext context)
+    private static void ShowTests(ShowTestsCommand command, KernelInvocationContext context)
     {
-        var trxFiles = TestResultSet.FindTrxFiles(dir.FullName);
+        var trxFiles = TestResultSet.FindTrxFiles(command.Dir.FullName);
 
         var results = TestResultSet.Create(trxFiles);
 
@@ -186,5 +184,25 @@ public class KernelExtension : IKernelExtension
         };
 
         return $"color:{color}";
+    }
+
+    internal static void DisplayStandardOut(
+        KernelInvocationContext context,
+        string output)
+    {
+        context.Publish(
+            new StandardOutputValueProduced(
+                context.Command,
+                [new(PlainTextFormatter.MimeType, output)]));
+    }
+
+    internal static void DisplayStandardError(
+        KernelInvocationContext context,
+        string error)
+    {
+        context.Publish(
+            new StandardErrorValueProduced(
+                context.Command,
+                [new(PlainTextFormatter.MimeType, error)]));
     }
 }

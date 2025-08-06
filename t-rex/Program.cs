@@ -1,14 +1,3 @@
-﻿using System;
-using System.CommandLine.Parsing;
-using System.Threading.Tasks;
+﻿using TRex.CommandLine;
 
-namespace TRex.CommandLine
-{
-    public class Program
-    {
-        static async Task<int> Main(string[] args)
-        {
-           return await CommandLine.CommandLineConfig.InvokeAsync(args);
-        }
-    }
-}
+return await CommandLine.RootCommand.Parse(args).InvokeAsync();

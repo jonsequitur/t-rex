@@ -1,14 +1,14 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <OutputType>Library</OutputType>
-    <TargetFrameworks>net6.0</TargetFrameworks>
+    <TargetFrameworks>net9.0</TargetFrameworks>
     <LangVersion>latest</LangVersion>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="microsoft.dotnet.interactive" Version="1.0.0-beta.23165.2" />
-    <PackageReference Include="microsoft.dotnet.interactive.formatting" Version="1.0.0-beta.23165.2" />
-    <PackageReference Include="xplot.plotly" Version="4.0.6" />
+    <PackageReference Include="microsoft.dotnet.interactive" Version="1.0.0-beta.25359.1" />
+    <PackageReference Include="microsoft.dotnet.interactive.formatting" Version="1.0.0-beta.25359.1" />
+    <PackageReference Include="xplot.plotly" Version="4.1.0" />
   </ItemGroup>
 
   <ItemGroup>
