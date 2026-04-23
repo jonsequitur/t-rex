@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <OutputType>exe</OutputType>
-    <TargetFramework>net9.0</TargetFramework>
+    <TargetFramework>net10.0</TargetFramework>
     <RootNamespace>TRex.CommandLine</RootNamespace>
     <ToolCommandName>t-rex</ToolCommandName>
     <PackAsTool>true</PackAsTool>
@@ -27,12 +27,12 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="newtonsoft.json" Version="13.0.3" />
-    <PackageReference Include="pocket.disposable" Version="1.2.0">
+    <PackageReference Include="newtonsoft.json" />
+    <PackageReference Include="pocket.disposable">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="System.CommandLine" Version="2.0.0-rc.1.25406.101" />
+    <PackageReference Include="System.CommandLine" />
   </ItemGroup>
   
 </Project>
