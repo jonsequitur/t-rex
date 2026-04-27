@@ -1,45 +1,21 @@
 ﻿using System;
 using System.IO;
-using Newtonsoft.Json;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace TRex.CommandLine
 {
-    public class DirectoryInfoJsonConverter : JsonConverter
+    public class DirectoryInfoJsonConverter : JsonConverter<DirectoryInfo>
     {
-        public override bool CanConvert(Type type) => type == typeof(DirectoryInfo);
-
-        public override object ReadJson(
-            JsonReader reader,
-            Type objectType,
-            object existingValue,
-            JsonSerializer serializer)
+        public override DirectoryInfo Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
         {
-            if (reader.Value is string s)
-            {
-                return new DirectoryInfo(s);
-            }
-
-            if (reader.Value is null)
-            {
-                return null;
-            }
-
-            throw new NotSupportedException($"Cannot read value {reader.Value}");
+            var s = reader.GetString();
+            return s is not null ? new DirectoryInfo(s) : null;
         }
 
-        public override void WriteJson(
-            Newtonsoft.Json.JsonWriter writer,
-            object value,
-            JsonSerializer serializer)
+        public override void Write(Utf8JsonWriter writer, DirectoryInfo value, JsonSerializerOptions options)
         {
-            if (value is DirectoryInfo directory)
-            {
-                writer.WriteValue(directory.FullName);
-            }
-            else
-            {
-                throw new ArgumentOutOfRangeException(nameof(value));
-            }
+            writer.WriteStringValue(value.FullName);
         }
     }
 }

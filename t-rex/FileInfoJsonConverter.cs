@@ -1,45 +1,21 @@
 ﻿using System;
 using System.IO;
-using Newtonsoft.Json;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace TRex.CommandLine
 {
-    public class FileInfoJsonConverter : JsonConverter
+    public class FileInfoJsonConverter : JsonConverter<FileInfo>
     {
-        public override bool CanConvert(Type type) => type == typeof(FileInfo);
-
-        public override object ReadJson(
-            JsonReader reader,
-            Type objectType,
-            object existingValue,
-            JsonSerializer serializer)
+        public override FileInfo Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
         {
-            if (reader.Value is string s)
-            {
-                return new FileInfo(s);
-            }
-
-            if (reader.Value is null)
-            {
-                return null;
-            }
-
-            throw new NotSupportedException($"Cannot read value {reader.Value}");
+            var s = reader.GetString();
+            return s is not null ? new FileInfo(s) : null;
         }
 
-        public override void WriteJson(
-            Newtonsoft.Json.JsonWriter writer,
-            object value,
-            JsonSerializer serializer)
+        public override void Write(Utf8JsonWriter writer, FileInfo value, JsonSerializerOptions options)
         {
-            if (value is FileInfo FileInfo)
-            {
-                writer.WriteValue(FileInfo.FullName);
-            }
-            else
-            {
-                throw new ArgumentOutOfRangeException(nameof(value));
-            }
+            writer.WriteStringValue(value.FullName);
         }
     }
 }

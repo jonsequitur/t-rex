@@ -3,8 +3,8 @@ using System.CommandLine;
 using System.IO;
 using FluentAssertions;
 using System.Linq;
+using System.Text.Json;
 using System.Threading.Tasks;
-using Newtonsoft.Json;
 using TRex.CommandLine;
 using Xunit;
 using Xunit.Abstractions;
@@ -16,10 +16,14 @@ namespace TRexLib.Tests
         private readonly ITestOutputHelper output;
         internal InvocationConfiguration _commandLineConfig;
 
-        private readonly JsonConverter[] converters =
+        private static readonly JsonSerializerOptions _jsonOptions = new()
         {
-            new FileInfoJsonConverter(),
-            new DirectoryInfoJsonConverter()
+            Converters =
+            {
+                new FileInfoJsonConverter(),
+                new DirectoryInfoJsonConverter(),
+                new TestResultSetJsonConverter()
+            }
         };
 
         public DisplayResultsDiscoveryTests(ITestOutputHelper output)
@@ -37,7 +41,7 @@ namespace TRexLib.Tests
         {
             await CommandLine.RootCommand.Parse("--format json").InvokeAsync(_commandLineConfig);
 
-            var results = JsonConvert.DeserializeObject<TestResultSet>(_commandLineConfig.Output.ToString(), converters);
+            var results = JsonSerializer.Deserialize<TestResultSet>(_commandLineConfig.Output.ToString(), _jsonOptions);
 
             var directories = results.Select(e => e.TestOutputFile).Select(f => f.Directory).ToArray();
             directories.Should().Contain(d => d.Name == "TRXs");
@@ -54,7 +58,7 @@ namespace TRexLib.Tests
 
             output.WriteLine(_commandLineConfig.Output.ToString());
 
-            var results = JsonConvert.DeserializeObject<TestResultSet>(_commandLineConfig.Output.ToString(), converters);
+            var results = JsonSerializer.Deserialize<TestResultSet>(_commandLineConfig.Output.ToString(), _jsonOptions);
             results.Should().HaveCount(2);
         }
 
@@ -67,7 +71,7 @@ namespace TRexLib.Tests
 
             output.WriteLine(_commandLineConfig.Output.ToString());
 
-            var results = JsonConvert.DeserializeObject<TestResultSet>(_commandLineConfig.Output.ToString(), converters);
+            var results = JsonSerializer.Deserialize<TestResultSet>(_commandLineConfig.Output.ToString(), _jsonOptions);
             results.Should().HaveCount(18);
         }
 
@@ -80,7 +84,7 @@ namespace TRexLib.Tests
 
             output.WriteLine(_commandLineConfig.Output.ToString());
 
-            var results = JsonConvert.DeserializeObject<TestResultSet>(_commandLineConfig.Output.ToString(), converters);
+            var results = JsonSerializer.Deserialize<TestResultSet>(_commandLineConfig.Output.ToString(), _jsonOptions);
             results.Count.Should().Be(36);
         }
 
@@ -94,7 +98,7 @@ namespace TRexLib.Tests
             output.WriteLine(_commandLineConfig.Error.ToString());
             output.WriteLine(_commandLineConfig.Output.ToString());
 
-            var results = JsonConvert.DeserializeObject<TestResultSet>(_commandLineConfig.Output.ToString(), converters);
+            var results = JsonSerializer.Deserialize<TestResultSet>(_commandLineConfig.Output.ToString(), _jsonOptions);
 
             results.Should().HaveCount(10);
 
@@ -111,7 +115,7 @@ namespace TRexLib.Tests
             output.WriteLine(_commandLineConfig.Error.ToString());
             output.WriteLine(_commandLineConfig.Output.ToString());
 
-            var results = JsonConvert.DeserializeObject<TestResultSet>(_commandLineConfig.Output.ToString(), converters);
+            var results = JsonSerializer.Deserialize<TestResultSet>(_commandLineConfig.Output.ToString(), _jsonOptions);
 
             results.Select(r => r.FullyQualifiedTestName)
                    .Where(name => name.Contains("DOTNET", StringComparison.Ordinal))
